@@ -111,7 +111,27 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
 5. **Make automation screenshots** — available or need creating? BLOCKS M2 case studies.
 6. **Which solar-system versions to feature** — OpenAI only, or both as a story. BLOCKS M2 cards.
 
+## Implementation notes (append-only — newest facts for the next agent)
+
+- **M0 (2026-09-28):** Scaffold written by hand (not `create-vite`) to pin the locked stack:
+  React 18.3 / Vite 5.4 / TypeScript ~5.6 strict (plus `noUncheckedIndexedAccess`) / Tailwind 3.4
+  via PostCSS (`tailwind.config.js`, `postcss.config.js`) / framer-motion 11 / react-router-dom 6
+  with `HashRouter` / Vitest 2 (`environment: node`, tests colocated as `src/**/*.test.ts`).
+- Single `tsconfig.json` (no project references) — `tsc --noEmit` covers `src` + `vite.config.ts`.
+- Deploy: `.github/workflows/deploy.yml` — push to `main` → `npm ci` → the same verification
+  gate → `upload-pages-artifact@v3` → `deploy-pages@v4`. The workflow **self-configures** Pages
+  to `build_type: workflow` via `actions/github-script` (idempotent, uses its own GITHUB_TOKEN
+  with `pages: write`). Reason: the owner's `gh` OAuth token gets 404 on Pages-settings
+  writes — don't retry that path; let the workflow do it.
+- `src/lib/cn.ts` (+ test) is the class-join helper the M1 design system/components will use.
+- The current homepage is a deliberately minimal **M0 placeholder** (dark slate, one fade-in) —
+  it is NOT the design decision; it gets replaced in M1 once OPEN DECISION 1 is resolved.
+- Owner machine: Node v22, npm 10.9 (`engines: >=20`). `gh` CLI v2.101 authenticated as
+  `gabortardos` (scopes incl. `repo`, `workflow`) — usable for Pages/API/run-watching.
+- `.DS_Store` is gitignored; keep it that way on macOS.
+
 ## Resume protocol for a new agent session
+
 
 1. Read `AGENT.md` (this file) + `ROADMAP.md` — they are the source of truth.
 2. If code exists, run the verification gate — it must be green before you change anything.
