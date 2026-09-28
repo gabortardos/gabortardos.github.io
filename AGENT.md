@@ -119,11 +119,16 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   with `HashRouter` / Vitest 2 (`environment: node`, tests colocated as `src/**/*.test.ts`).
 - Single `tsconfig.json` (no project references) — `tsc --noEmit` covers `src` + `vite.config.ts`.
 - Deploy: `.github/workflows/deploy.yml` — push to `main` → `npm ci` → the same verification
-  gate → `upload-pages-artifact@v3` → `deploy-pages@v4`. **Pages build source must be
-  "GitHub Actions"** (repo Settings → Pages). Neither the owner's `gh` OAuth token nor the
-  workflow's `GITHUB_TOKEN` may change Pages settings (API: 404 / "Resource not accessible by
-  integration"; confirmed by `actions/configure-pages` docs — needs a PAT or GitHub App).
-  It is a one-time manual toggle in the repo UI — don't burn time automating it.
+  gate → `upload-pages-artifact@v3` → `deploy-pages@v4`. Empirically (2026-09-28) deploy-pages
+  publishes fine **even while** the repo Pages setting reads `build_type: "legacy"` — the
+  artifact deployment wins over the internal Jekyll pipeline. Recommended one-time hygiene:
+  owner flips Settings → Pages → Source to "GitHub Actions". Pages-settings writes are denied
+  for both the owner's `gh` OAuth token (404) and `GITHUB_TOKEN` ("Resource not accessible by
+  integration"); per `actions/configure-pages` docs it needs a PAT/GitHub App — not worth it
+  for a one-time toggle.
+- **YAML gotcha:** GitHub rejects workflow files containing an unquoted `: ` inside a plain
+  scalar (e.g. a step name) — the run fails instantly with zero jobs. Validate locally with
+  `npx js-yaml .github/workflows/deploy.yml` before pushing.
 - `src/lib/cn.ts` (+ test) is the class-join helper the M1 design system/components will use.
 - The current homepage is a deliberately minimal **M0 placeholder** (dark slate, one fade-in) —
   it is NOT the design decision; it gets replaced in M1 once OPEN DECISION 1 is resolved.

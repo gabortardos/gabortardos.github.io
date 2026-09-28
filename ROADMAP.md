@@ -21,4 +21,6 @@
 |---|---|---|
 | 2026-09-28 | M0 local gate: `npx tsc --noEmit && npm test -- --run && npm run build` | ✅ green — 0 TS errors · 3/3 tests (`src/lib/cn.test.ts`) · vite 5.4.21 build OK (dist 272 kB JS / 88.6 kB gzip) |
 | 2026-09-28 | M0 CI attempt 1 (run 36442413664) | ❌ workflow file rejected before any job — unquoted `: ` inside a step name (YAML parse error, confirmed with js-yaml). Fixed by renaming the step; see next entry. |
+| 2026-09-28 | M0 CI attempt 2 (run 36442789215) | ❌ build job + full gate ✅ green in CI; deploy failed — GITHUB_TOKEN is not allowed to mutate Pages settings ("Resource not accessible by integration"). Removed that step; documented in AGENT.md. |
+| 2026-09-28 | M0 CI attempt 3 (run 36443091019) + live check | ✅ green end-to-end — artifact deployed via `deploy-pages@v4`; https://gabortardos.github.io/ returns HTTP 200 serving the hashed Vite build → **M0 DoD met**. Note: repo Pages setting still reads `build_type: "legacy"` (deploy works anyway); one-time UI flip to "GitHub Actions" recommended for hygiene. |
 
