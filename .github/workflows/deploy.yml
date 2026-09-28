@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verification gate (same as local: tsc + tests + build)
+      - name: Verification gate (tsc + tests + build)
         run: |
           npx tsc --noEmit
           npm test -- --run

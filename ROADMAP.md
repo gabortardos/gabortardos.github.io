@@ -20,4 +20,5 @@
 | Date | Gate | Result |
 |---|---|---|
 | 2026-09-28 | M0 local gate: `npx tsc --noEmit && npm test -- --run && npm run build` | ✅ green — 0 TS errors · 3/3 tests (`src/lib/cn.test.ts`) · vite 5.4.21 build OK (dist 272 kB JS / 88.6 kB gzip) |
+| 2026-09-28 | M0 CI attempt 1 (run 36442413664) | ❌ workflow file rejected before any job — unquoted `: ` inside a step name (YAML parse error, confirmed with js-yaml). Fixed by renaming the step; see next entry. |
 
