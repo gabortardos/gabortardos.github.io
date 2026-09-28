@@ -9,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: pages
@@ -48,6 +49,27 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Wait for legacy Pages pipeline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          echo "Repo Pages source is still the legacy pipeline, so both pipelines publish on push."
+          echo "Publishing is last-writer-wins — we must deploy only after the legacy run for this SHA finishes."
+          for i in $(seq 1 60); do
+            STATUS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?per_page=30" \
+              --jq '.workflow_runs[]
+                    | select(.path == "dynamic/pages/pages-build-deployment" and .head_sha == env.GITHUB_SHA)
+                    | .status' | head -n 1) || STATUS=""
+            if [ "${STATUS}" = "completed" ]; then
+              echo "Legacy pipeline completed on attempt ${i} — deploying now."
+              exit 0
+            fi
+            echo "attempt ${i}/60 — legacy pipeline ${STATUS:-not started yet}"
+            sleep 10
+          done
+          echo "::warning::Timed out waiting for the legacy Pages pipeline — deploying anyway."
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

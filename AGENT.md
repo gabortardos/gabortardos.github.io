@@ -124,13 +124,19 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   with `HashRouter` / Vitest 2 (`environment: node`, tests colocated as `src/**/*.test.ts`).
 - Single `tsconfig.json` (no project references) — `tsc --noEmit` covers `src` + `vite.config.ts`.
 - Deploy: `.github/workflows/deploy.yml` — push to `main` → `npm ci` → the same verification
-  gate → `upload-pages-artifact@v3` → `deploy-pages@v4`. Empirically (2026-09-28) deploy-pages
-  publishes fine **even while** the repo Pages setting reads `build_type: "legacy"` — the
-  artifact deployment wins over the internal Jekyll pipeline. Recommended one-time hygiene:
-  owner flips Settings → Pages → Source to "GitHub Actions". Pages-settings writes are denied
-  for both the owner's `gh` OAuth token (404) and `GITHUB_TOKEN` ("Resource not accessible by
-  integration"); per `actions/configure-pages` docs it needs a PAT/GitHub App — not worth it
-  for a one-time toggle.
+  gate → `upload-pages-artifact@v3` → **wait for the legacy pipeline** → `deploy-pages@v4`.
+- **Last-writer-wins race (discovered 2026-09-28):** while the repo Pages setting reads
+  `build_type: "legacy"`, the internal pipeline (`dynamic/pages/pages-build-deployment`, API
+  name “pages build and deployment”, `head_sha` = pushed SHA) ALSO publishes the repo working
+  tree on every push, and whichever deployment finishes LAST wins. First three pushes: our
+  artifact won by seconds. Fourth push: legacy won by 6s and served raw source
+  (`index.html` → `/src/main.tsx`, blank site). Fix: deploy job waits (10s polls, 10 min cap)
+  until the legacy run for the same SHA is completed, so our artifact always lands last.
+  If the owner ever flips Settings → Pages → Source to “GitHub Actions”, the legacy pipeline
+  stops and the wait step becomes a fast no-op. Pages-settings writes are denied for both the
+  owner’s `gh` OAuth token (404) and `GITHUB_TOKEN` (“Resource not accessible by
+  integration”); per `actions/configure-pages` docs it needs a PAT/GitHub App — not worth it
+  for a one-time toggle. (The owner’s Pages UI shows no Source picker — expected; do nothing.)
 - **YAML gotcha:** GitHub rejects workflow files containing an unquoted `: ` inside a plain
   scalar (e.g. a step name) — the run fails instantly with zero jobs. Validate locally with
   `npx js-yaml .github/workflows/deploy.yml` before pushing.
