@@ -137,6 +137,11 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   owner’s `gh` OAuth token (404) and `GITHUB_TOKEN` (“Resource not accessible by
   integration”); per `actions/configure-pages` docs it needs a PAT/GitHub App — not worth it
   for a one-time toggle. (The owner’s Pages UI shows no Source picker — expected; do nothing.)
+- **Post-push behavior while `build_type` is legacy (expected, not a regression):** for up to
+  ~1–2 min after a push the site may serve the legacy pipeline’s snapshot (raw source → blank
+  page, asset URLs 404) until our artifact lands last; CDNs may also briefly cache the 404.
+  Verify only after the “Deploy to GitHub Pages” run completes, and cache-bust with a query
+  string (e.g. `curl 'https://…/assets/index-XXXX.js?cb=1'`) or `Cache-Control: no-cache`.
 - **YAML gotcha:** GitHub rejects workflow files containing an unquoted `: ` inside a plain
   scalar (e.g. a step name) — the run fails instantly with zero jobs. Validate locally with
   `npx js-yaml .github/workflows/deploy.yml` before pushing.
