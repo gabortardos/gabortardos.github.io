@@ -119,10 +119,11 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   with `HashRouter` / Vitest 2 (`environment: node`, tests colocated as `src/**/*.test.ts`).
 - Single `tsconfig.json` (no project references) — `tsc --noEmit` covers `src` + `vite.config.ts`.
 - Deploy: `.github/workflows/deploy.yml` — push to `main` → `npm ci` → the same verification
-  gate → `upload-pages-artifact@v3` → `deploy-pages@v4`. The workflow **self-configures** Pages
-  to `build_type: workflow` via `actions/github-script` (idempotent, uses its own GITHUB_TOKEN
-  with `pages: write`). Reason: the owner's `gh` OAuth token gets 404 on Pages-settings
-  writes — don't retry that path; let the workflow do it.
+  gate → `upload-pages-artifact@v3` → `deploy-pages@v4`. **Pages build source must be
+  "GitHub Actions"** (repo Settings → Pages). Neither the owner's `gh` OAuth token nor the
+  workflow's `GITHUB_TOKEN` may change Pages settings (API: 404 / "Resource not accessible by
+  integration"; confirmed by `actions/configure-pages` docs — needs a PAT or GitHub App).
+  It is a one-time manual toggle in the repo UI — don't burn time automating it.
 - `src/lib/cn.ts` (+ test) is the class-join helper the M1 design system/components will use.
 - The current homepage is a deliberately minimal **M0 placeholder** (dark slate, one fade-in) —
   it is NOT the design decision; it gets replaced in M1 once OPEN DECISION 1 is resolved.

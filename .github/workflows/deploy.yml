@@ -48,18 +48,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Ensure Pages builds via GitHub Actions (idempotent)
-        uses: actions/github-script@v7
-        with:
-          script: |
-            // The owner's gh OAuth token cannot write Pages settings (API returns 404),
-            // but this workflow's GITHUB_TOKEN has pages:write — set the build source here.
-            await github.rest.repos.updateInformationAboutPagesSite({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              build_type: 'workflow',
-            });
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
