@@ -102,10 +102,15 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
 
 ## OPEN DECISIONS (ask the owner only when they become blocking)
 
-1. **Design direction** — options already offered: (a) dark & cinematic, (b) clean & minimal
-   light, (c) playful & colorful, (d) agent builds 2–3 mockup variants and owner picks.
-   If still unanswered at M1, default to (d). BLOCKS M1.
-2. **Site language** — English / Hungarian / both (Sveltia i18n available). BLOCKS M1 copy.
+1. **Design direction** — ✅ RESOLVED 2026-09-28: owner chose **“agent builds 2–3 mockup
+   variants, owner picks”** (option d), informed by 6 reference sites the owner likes
+   (`monoai`/`sadewa`/`bima`/`ondex`/`fusionai` — dark Framer AI templates — plus light/warm
+   `claura`). Variants live at `/#/v1` “Workshop” (dark cinematic editorial, amber accent —
+   agent recommendation), `/#/v2` “Lab” (dark techy product-forward, cyan), `/#/v3` “Studio”
+   (light warm, orange), chooser at `/#/`. **Mockup routes are TEMPORARY** — once the owner
+   picks, fold the winner into the real M1 design system and delete variant routes + chooser.
+2. **Site language** — ✅ RESOLVED 2026-09-28: **English only** (widest audience). If that
+   ever changes, Sveltia i18n is the path — do not preemptively build i18n.
 3. **Podcasts/songs hosting** — local files (repo/storage) vs platform embeds. BLOCKS M2 media.
 4. **Custom domain** — now / later / never. Blocks only M4.
 5. **Make automation screenshots** — available or need creating? BLOCKS M2 case studies.
@@ -130,8 +135,12 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   scalar (e.g. a step name) — the run fails instantly with zero jobs. Validate locally with
   `npx js-yaml .github/workflows/deploy.yml` before pushing.
 - `src/lib/cn.ts` (+ test) is the class-join helper the M1 design system/components will use.
-- The current homepage is a deliberately minimal **M0 placeholder** (dark slate, one fade-in) —
-  it is NOT the design decision; it gets replaced in M1 once OPEN DECISION 1 is resolved.
+- The M0 placeholder homepage was replaced (2026-09-28) by a **temporary variant chooser**
+  (`/#/`) + 3 mockups (`/#/v1|v2|v3`) while OPEN DECISION 1 was resolved via the variants
+  route — these are exploration scaffolding, not the design system. `HomePage.tsx` was
+  deleted in the process; the winner gets rebuilt properly as `HomePage.tsx` + tokens.
+  Fonts loaded via Google Fonts `<link>` in `index.html` (Inter, Space Grotesk, JetBrains
+  Mono, Instrument Serif) + `font-{body,display,serif,mono}` utilities + `animate-marquee`.
 - Owner machine: Node v22, npm 10.9 (`engines: >=20`). `gh` CLI v2.101 authenticated as
   `gabortardos` (scopes incl. `repo`, `workflow`) — usable for Pages/API/run-watching.
 - `.DS_Store` is gitignored; keep it that way on macOS.
