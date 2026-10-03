@@ -216,6 +216,20 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   depth. Sun is now a 3D simplex fbm photosphere (convection + granulation + limb
   darkening + chromosphere rim); sun label removed. Owner offered hooking up an
   external design/animation app — declined for now; in-shader quality sufficed.
+- **P1.2 + P2 shipped (2026-10-03, owner auto-go):** the “80s stop-motion model”
+  look was a scene bug, not a Saturn problem — bodies had zero axial tilt and
+  near-invisible spin. Rules learned: (1) tilt the ORBIT HOLDER (not the mesh) so
+  ring + moons ride the equator, and keep rings exactly equatorial — the axial
+  tilt does the tipping; (2) visible spin must be ORDERED like reality (gas
+  giants fastest) but scene-compressed (~0.04–0.38 rad/s) — realistic rates are
+  invisible and read as “still”; (3) moon orbits should derive from the planet's
+  spin (here `max(0.09−0.025i, spin·(0.9−0.15i))`) or they feel disconnected;
+  (4) scroll journeys: measure anchors from DOM section centers, recompute
+  viewpoints from LIVE planet positions every frame (framing then survives
+  ongoing orbits), ease the scroll value (`camT`, dt·4.5) so flicks become
+  flights, and cut any large scroll-coupled global rotation — the traveling
+  camera makes it fight the framing (0.9→0.35 rad); (5) cheap atmosphere =
+  back-side additive shell sphere at ~10 % opacity (fresnel stand-in).
 - **GLM solar-system repo state (owner, 2026-10-03):** currently “almost simple black nothing”
   after the last prompts; an earlier version looked OK but has an annoying toy ship. If ever
   featured, owner restores that earlier state minus the ship. Deprioritized — the explorer is

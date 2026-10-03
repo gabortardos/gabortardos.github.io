@@ -63,9 +63,41 @@ section accents, not from recolored planets.
       cloud drift / moons, twinkle 1.6 Hz → 0.35 Hz and subtler, hover pop
       1.22 → 1.07 with softer lerp.
 
-**P2 — Cinematic scroll journey**
-- [ ] Scroll = camera flight: each section arrives at its planet, which rotates into frame
-      behind its text; eased keyframe camera path; reduced-motion keeps the static frame.
+**P1.2 — Natural rotation & calmer system (owner P1.1 re-review)** ✅ 2026-10-03
+- Owner verdict: Saturn's movement read like an 80s movie model; planets looked
+  still — give every object its natural rotation first, harmonize moons with it;
+  slow the whole system ~30 %; orbit paths 10 % darker; background color +
+  animation liked, untouched. Saturn stays Saturn (Jupiter held in reserve).
+- [x] Diagnosis: zero axial tilt + near-invisible spin — a flat, motionless ring
+      disc sliding around. Fix: real axial tilt on the holder (Saturn 26.7°,
+      Earth 23.4°, Moon 6.7°, Mercury/Europa ≈0°) so ring + moons ride the
+      planet's equator and the ring opening breathes around the orbit; Saturn's
+      ring now exactly equatorial — the tilt does the tipping.
+- [x] Visible natural spin, ordered like the real bodies: saturn 0.38 > earth
+      0.30 ≫ europa 0.07 > moon 0.06 > mercury 0.045 rad/s; Earth's clouds drift
+      1.2× the surface (was slower than the planet — physically backwards).
+- [x] Moons harmonized with their planet's spin: max(0.09−0.025·i, spin·(0.9−0.15·i))
+      — calm, Kepler-ordered (inner faster), never dead still.
+- [x] Whole-system motion −30 %: orbital advance ×0.7 (SYSTEM_RATE), system spin
+      0.006 → 0.0042 rad/s. Stars/sun/twinkle untouched (owner likes them).
+- [x] Orbit paths 10 % darker: opacity 0.11 → 0.099.
+
+**P2 — Cinematic scroll journey** ✅ 2026-10-03 (awaiting owner review)
+- [x] Scroll = camera flight: anchors at hero (t=0) + each planet's DOM section
+      center (measured at init/resize/+2.6 s for font settle); per-anchor
+      viewpoints recomputed every frame from the LIVE planet positions, so
+      framing survives the ongoing orbits — parked outside the orbit (lit face
+      toward camera), slightly above the ecliptic, planet framed screen-right of
+      the text column; Saturn's distance frames the full ring; portrait frames
+      1.55× wider. Smoothstep between anchors + eased camT (dt·4.5) turn
+      flick-scrolls into buttery flights; the last planet holds through the
+      footer; ignition pull-back preserved on the hero shot.
+- [x] Atmosphere limb glow (the P1-deferred fresnel): back-side additive shells,
+      10 % opacity, accent-colored — reads as atmosphere on flybys only.
+- [x] System swirl on scroll 0.9 → 0.35 rad — the camera travels now; the old
+      global rotation would fight the framing.
+- [x] Reduced motion: the same applyCamera positions a static framed view for the
+      current scroll position (no flight, no orbits).
 
 **P3 — Interaction depth**
 - [ ] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
@@ -102,4 +134,6 @@ section accents, not from recolored planets.
 | 2026-10-03 | v4 nav-bug fix + v4 dev plan (owner picked v4) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk unchanged 539.6 kB / 135.4 kB gzip). Root cause of dead planet nav: DOM-labels overlay above the canvas lacked `pointer-events-none` → fixed in OrreryBackground. Owner picked the v4 direction; dev plan (P0 fixes → P1 HQ real textures → P2 cinematic scroll → P3 fly-to/moon landings → P4 comet/HUD) added above; AGENT.md updated (direction, textures decision lean, GLM repo state). |
 | 2026-10-03 | v4 P1.1 calibration — local gate | ✅ green — 0 TS errors · 3/3 tests · build OK. Main bundle 310.46 kB / **100.15 kB gzip unchanged**; orrery chunk 570.9 kB / 144.1 kB gzip (+2.4 kB for the 3D-simplex sun + higher tessellation). Tuning driven by the owner's A/B compare page (`design/`, gitignored): keep new stars (a bit brighter) + new orbit colors at old darkness + real-texture planets; fix light wash, giant glow ball, cheap sun, twitchy motion. Sun label removed. |
 | 2026-10-03 | v4 P1.1 CI deploy (run for `440679d`) + live verification | ✅ green — live root (cache-busted) serves `index-BroVYufH.js` (310,603 B) which references `OrreryBackground-LfZ8k9zU.js`; that chunk live at HTTP 200, 570,894 bytes = exact local dist match. P1.1 live on `/#/v4`. Awaiting owner re-review + the still-pending P0 smoke test. |
+| 2026-10-03 | v4 P1.2 natural rotation — local gate + CI (`102ce07`) | ✅ green — 0 TS errors · 3/3 tests · build OK. Main bundle 310.46 kB / 100.15 kB gzip unchanged; orrery chunk 572.9 kB (+2 kB for the tilt/spin calibration maps). Fix for the owner's “80s model” Saturn note: axial tilt + visible ordered spin + harmonized moons + system ×0.7 + rings 0.099. |
+| 2026-10-03 | v4 P2 cinematic scroll — local gate + CI + live verification (`ca2434a`) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk 574.2 kB, +1.3 kB for the flight system + rim shells). CI ✓ for both commits incl. Pages deploy. Live (cache-busted): root → `index-BOcDYP1b.js` → `OrreryBackground-DpIJRk_Z.js` at 574,220 bytes = exact local match. P1.2 + P2 live on `/#/v4`; awaiting owner review. |
 
