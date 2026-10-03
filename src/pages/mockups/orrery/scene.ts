@@ -35,6 +35,8 @@ type Planet = {
   pivot: THREE.Group;
   mesh: THREE.Mesh;
   moons: Moon[];
+  /** orbit-ring material — faded out on hover + cinematic close-ups */
+  orbitMat: THREE.LineBasicMaterial;
   /** optional slow-rotating shell around the planet, e.g. Earth's clouds */
   overlay?: THREE.Mesh;
   label: HTMLElement | null;
@@ -330,9 +332,12 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     }
     const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
     const color = new THREE.Color(spec.color);
-    plane.add(
-      new THREE.LineLoop(ringGeo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.099 })), // dark hint, not a wire — P1.2: 10% darker
-    );
+    const orbitMat = new THREE.LineBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.099, // dark hint, not a wire — P1.2: 10% darker
+    });
+    plane.add(new THREE.LineLoop(ringGeo, orbitMat));
 
     const pivot = new THREE.Group();
     pivot.rotation.y = (index / Math.max(1, specs.length)) * Math.PI * 2 + 0.7;
@@ -371,7 +376,11 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     // Natural surface per planet (owner-approved P1 mapping, textures.ts).
     // Earth additionally gets a drifting cloud shell + night-side lights;
     // Art gets Saturn's ring (radial UVs rewritten for the alpha strip).
-    let overlay: THREE.Mesh | undefined;
+    // The cloud shell loads async — keep the mesh in a closure the record below
+    // reads via a getter. (A plain `overlay` property snapshotting at build time
+    // captured `undefined` before the texture callback ran — that was the
+    // "Earth's clouds never drift" bug.)
+    let overlayMesh: THREE.Mesh | undefined;
     const surface = planetSurface[spec.id];
     if (surface) {
       loadSurface(surfaceUrl[surface], (t) => {
@@ -394,7 +403,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
           }),
         );
         holder.add(clouds);
-        overlay = clouds;
+        overlayMesh = clouds;
       });
       loadSurface(earthNightMap, (t) => {
         mat.emissiveMap = t;
@@ -456,7 +465,10 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       pivot,
       mesh,
       moons,
-      overlay,
+      orbitMat,
+      get overlay(): THREE.Mesh | undefined {
+        return overlayMesh;
+      },
       label: labelsHost.querySelector<HTMLElement>(`[data-id="${spec.id}"]`),
       scale: 1,
     };
@@ -550,8 +562,11 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     vTmp.copy(look).setY(0).normalize(); // sun → planet, flattened
     pos
       .copy(look)
-      .addScaledVector(vTmp, viewDistance(p) * 0.92) // park outside the orbit → lit face
-      .addScaledVector(CAM_UP, viewDistance(p) * 0.42); // slightly above the ecliptic
+      // Park SUNWARD of the planet: the lit hemisphere faces the sun, so from
+      // inside the orbit the camera gets the beautiful near-full phase. (Parking
+      // outside the orbit showed the dark side — owner caught it.)
+      .addScaledVector(vTmp, -viewDistance(p) * 0.92)
+      .addScaledVector(CAM_UP, viewDistance(p) * 0.42); // above the ecliptic → soft terminator at the lower limb
     // park the planet screen-right so the text column owns the left half
     vTmp.subVectors(pos, look).normalize();
     vRight.crossVectors(CAM_UP, vTmp).normalize();
@@ -573,7 +588,22 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     const k = smoothstep(Math.min(1, Math.max(0, (t - a.t) / Math.max(1e-4, end.t - a.t))));
     anchorView(a, ig, vPosA, vLookA);
     anchorView(end, ig, vPosB, vLookB);
-    camera.position.lerpVectors(vPosA, vPosB, k);
+    // Fly an ARC around the sun (radius + shortest-way azimuth + height) instead
+    // of a straight lerp — viewpoints sit sunward of their planets now, so a
+    // straight line could sweep the camera straight through the sun itself.
+    const rA = vPosA.length();
+    const rB = vPosB.length();
+    const azA = Math.atan2(vPosA.z, vPosA.x);
+    const azB = Math.atan2(vPosB.z, vPosB.x);
+    let dAz = azB - azA;
+    if (dAz > Math.PI) dAz -= Math.PI * 2;
+    if (dAz < -Math.PI) dAz += Math.PI * 2;
+    const az = azA + dAz * k;
+    camera.position.set(
+      Math.cos(az) * (rA + (rB - rA) * k),
+      vPosA.y + (vPosB.y - vPosA.y) * k,
+      Math.sin(az) * (rA + (rB - rA) * k),
+    );
     vTmp.lerpVectors(vLookA, vLookB, k);
     camera.lookAt(vTmp);
   };
@@ -653,6 +683,16 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       p.mesh.scale.setScalar(p.scale);
     }
 
+    // Orbit rings: wayfinding at a distance, invisible up close — fade the ring
+    // of the hovered planet and of whichever planet the cinematic camera is
+    // visiting, so the circle never slashes across a close-up (owner request).
+    for (const p of planets) {
+      p.mesh.getWorldPosition(vPosA);
+      const close = vPosA.distanceTo(camera.position) < viewDistance(p) * 1.5;
+      const target = p === hovered || close ? 0.02 : 0.099;
+      p.orbitMat.opacity += (target - p.orbitMat.opacity) * Math.min(1, dt * 4);
+    }
+
     composer.render();
     if (ig > 0.12) placeLabels();
   };
@@ -664,6 +704,11 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     sunUniforms.uTime.value = performance.now() / 1000;
     sunUniforms.uIgnite.value = 1;
     applyCamera(scrollProgress, 1);
+    for (const p of planets) {
+      p.mesh.getWorldPosition(vPosA);
+      p.orbitMat.opacity =
+        vPosA.distanceTo(camera.position) < viewDistance(p) * 1.5 ? 0.02 : 0.099;
+    }
     composer.render();
     placeLabels();
   }
