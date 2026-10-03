@@ -190,12 +190,18 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   natural colors, category identity carried by orbit rings/labels/section accents instead of
   planet hue (tinted-textures variant stays a documented fallback). No credits file exists in
   the explorer repo; textures look like the standard NASA/three.js-example set — add a one-line
-  “planet imagery: NASA/JPL” footer credit when they ship. Textures load in the lazy orrery
+  “planet imagery: NASA/JPL” footer credit — shipped in P1 (2026-10-03). Textures load in the lazy orrery
   chunk only (small webp variants are 1–160 kB each).
 - **v4 pointer-events bug (found+fixed 2026-10-03):** the DOM-labels layer in
   OrreryBackground was a full-viewport div WITHOUT `pointer-events-none`, stacked above the
   canvas — it ate every hover/click, so planet navigation was dead on the live site. Rule: any
   full-screen overlay above the canvas must be `pointer-events-none`.
+- **P1 shipped (2026-10-03):** real surfaces live in `scene.ts` via `textures.ts` —
+  swappable `planetSurface` map (mercury / moon / earth+clouds+night / saturn+ring /
+  europa); fbm shader sun (no texture), bloom composer, twinkling 2-layer starfield.
+  Moon height-map skipped (weight); planet fresnel rim deferred to P2. Owner OK'd admin
+  at M3; new-project moons will pick their look from a surface dropdown (explorer
+  library, exposed as a Sveltia collection field) — textures stay per-moon swappable.
 - **GLM solar-system repo state (owner, 2026-10-03):** currently “almost simple black nothing”
   after the last prompts; an earlier version looked OK but has an annoying toy ship. If ever
   featured, owner restores that earlier state minus the ship. Deprioritized — the explorer is

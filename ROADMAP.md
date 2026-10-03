@@ -28,14 +28,20 @@ section accents, not from recolored planets.
 - [x] Explorer live-demo link wired across all mockups (ChatGPT Sites URL).
 - [ ] Owner post-fix smoke test: hover glow + labels, click-to-travel, touch, portrait resize.
 
-**P1 — HQ graphics (the “not colored balls” pass)**
-- [ ] Real textures from the explorer repo `public/textures/`: Mercury, Moon (+ height-map
-      bump), Earth day/night/clouds, Saturn + ring alpha, gas-giant bands, ice moons.
-- [ ] Shader sun: fbm-noise surface + corona sprites; subtle bloom post-pass.
-- [ ] Fresnel atmosphere rim-glow on planets; drifting cloud layer + terminator on Earth.
-- [ ] Starfield upgrade: 2–3 parallax depth layers + twinkle.
-- [ ] Ship only small/1024 webp variants in the lazy chunk (~100–250 kB total);
-      “planet imagery: NASA/JPL” footer credit.
+**P1 — HQ graphics (the “not colored balls” pass)** ✅ 2026-10-03
+- [x] Real textures from the explorer repo `public/textures/` — owner-approved mapping:
+      mercury→Apps, moon-1024→Make + all project moons, earth-1024+clouds+night→Podcasts,
+      saturn-2048 + ring alpha→Art, europa-1024→Songs. Deviations: gas-giant bands dropped
+      (Saturn is the showcase planet), moon height-map skipped for weight, sun stays
+      shader-only (no sun.jpg). Surfaces swap via the `planetSurface` map in `textures.ts`.
+- [x] Shader sun: fbm-noise plasma + limb darkening + glow sprite; UnrealBloomPass
+      (0.35 / 0.7 / 0.82) + OutputPass, all inside the lazy chunk.
+- [x] Earth extras: drifting cloud shell (alphaMap) + night-side lights (emissiveMap).
+      Planet fresnel rim-glow deferred to P2 — needs eyes-on tuning with the owner.
+- [x] Starfield: two parallax depth layers (1100 near + 900 far), per-star twinkle shader.
+- [x] 1024 variants shipped as hashed lazy-chunk assets — 582 kB total (171 jpg + 411
+      webp/png), above the 250 kB estimate but fetched only after main paint, behind
+      ignition; “planet imagery: NASA/JPL, via Solar System Explorer” footer credit added.
 
 **P2 — Cinematic scroll journey**
 - [ ] Scroll = camera flight: each section arrives at its planet, which rotates into frame
@@ -66,6 +72,7 @@ section accents, not from recolored planets.
 | 2026-09-28 | M0 CI attempt 3 (run 36443091019) + live check | ✅ green end-to-end — artifact deployed via `deploy-pages@v4`; https://gabortardos.github.io/ returns HTTP 200 serving the hashed Vite build → **M0 DoD met**. Note: repo Pages setting still reads `build_type: "legacy"` (deploy works anyway); one-time UI flip to "GitHub Actions" recommended for hygiene. |
 | 2026-09-28 | M1 local gate (variant chooser + 3 mockups + fonts/marquee tokens) | ✅ green — 0 TS errors · 3/3 tests · vite build OK (291.5 kB JS / 94.2 kB gzip; CSS 17.2 kB incl. font utilities). `HomePage.tsx` (M0 placeholder) removed. Deploy verification logged after push. |
 | 2026-09-28 | M1 CI deploy (run for `9fc9e05`) + live check | ⚠️ workflow green BUT live site broken — legacy `pages-build-deployment` finished 6s after our deploy and **clobbered it** (last-writer-wins race): live `index.html` served raw source (`/src/main.tsx`), new bundle 404. Earlier pushes won the race by seconds — luck, not correctness. |
+| 2026-10-03 | v4 P1 HQ graphics — local gate | ✅ green — 0 TS errors · 3/3 tests · build OK. Main bundle UNCHANGED (310.48 kB / 100.15 kB gzip); orrery chunk 568.5 kB / 143.2 kB gzip (+~8 kB gzip for EffectComposer/RenderPass/UnrealBloomPass/OutputPass); 8 texture assets (582 kB: mercury jpg 171 + moon/earth×3/saturn/europa webp + ring png) emitted as hashed files, fetched only with the lazy chunk. Owner approved real-texture direction + mapping (art = saturn + ring, songs = europa); admin timing left to agent (M3 — moon look becomes a surface dropdown); P0 owner smoke test still pending. |
 | 2026-09-28 | M1 race fix — local gate + js-yaml workflow validation | ✅ green — no src changes; deploy.yml gains `actions: read` + a wait step polling the legacy run (by path + head_sha) until completed before `deploy-pages@v4`, making our artifact deterministically last. |
 | 2026-09-28 | M1 race fix — CI (run 36465908153) + live verification | ✅ green — wait step ran + deployed after legacy run; live `index.html` references `assets/index-CJQu-ksN.js` (HTTP 200, contains variant content). Mockup URLs live: `/#/` chooser, `/#/v1`, `/#/v2`, `/#/v3`. **Awaiting owner pick.** |
 | 2026-10-03 | M1 v4 local gate (Variant 4 “System” — live three.js orrery) | ✅ green — 0 TS errors · 3/3 tests · vite build OK. Chunking verified: main bundle 310.4 kB / 100.1 kB gzip (+~6 kB gzip vs the 3-variant build); `three` fully isolated in the lazy `OrreryBackground` chunk 539.6 kB / 135.4 kB gzip (loads only on `/#/v4`; Vite's >500 kB warning is that chunk — expected, no action). Deploy verification logged after push. |

@@ -1,9 +1,22 @@
-// Plain-three “orrery” engine for the Variant 4 mockup — a lightweight adaptation of
-// the visual ideas behind solar-system-explorer (same owner; stylized materials, no
-// textures). This module is imported ONLY by the lazy OrreryBackground chunk, so
-// `three` never enters the main bundle.
+// Plain-three “orrery” engine for the Variant 4 homepage — a real-materials
+// adaptation of the owner's solar-system-explorer: natural-color NASA-style
+// planet surfaces (textures.ts), animated shader sun, subtle bloom and a
+// twinkling two-layer starfield. Imported ONLY by the lazy OrreryBackground
+// chunk, so `three` + textures never enter the main bundle.
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import type { BodySpec } from './system';
+import {
+  earthCloudsMap,
+  earthNightMap,
+  moonSurfaceUrl,
+  planetSurface,
+  saturnRingMap,
+  surfaceUrl,
+} from './textures';
 
 export type OrreryOptions = {
   canvas: HTMLCanvasElement;
@@ -22,6 +35,8 @@ type Planet = {
   pivot: THREE.Group;
   mesh: THREE.Mesh;
   moons: Moon[];
+  /** optional slow-rotating shell around the planet, e.g. Earth's clouds */
+  overlay?: THREE.Mesh;
   label: HTMLElement | null;
   scale: number;
 };
@@ -69,10 +84,61 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   systemGroup.rotation.x = 0.12;
   scene.add(systemGroup);
 
-  // Sun + additive glow sprite (ignited over the first ~2.4s).
+  // Post-processing: subtle bloom so the shader sun + lit rims breathe. OutputPass
+  // restores sRGB + tone mapping after the composer's linear render targets.
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(2, 2), 0.35, 0.7, 0.82);
+  composer.addPass(bloomPass);
+  composer.addPass(new OutputPass());
+
+  // Sun: animated fbm plasma shader with limb darkening — its hot core feeds bloom.
+  const sunUniforms = { uTime: { value: 0 }, uIgnite: { value: 0 } };
   const sunMesh = new THREE.Mesh(
     new THREE.SphereGeometry(2, 48, 32),
-    new THREE.MeshBasicMaterial({ color: 0xffe3b3 }),
+    new THREE.ShaderMaterial({
+      uniforms: sunUniforms,
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        void main() {
+          vUv = uv;
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uIgnite;
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+                     mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+        }
+        float fbm(vec2 p) {
+          float v = 0.0;
+          float a = 0.5;
+          for (int k = 0; k < 4; k++) { v += a * noise(p); p *= 2.03; a *= 0.5; }
+          return v;
+        }
+        void main() {
+          vec2 p = vUv * vec2(8.0, 4.0);
+          float n = fbm(p + vec2(uTime * 0.05, uTime * 0.02) + 1.5 * fbm(p * 1.5 + uTime * 0.03));
+          vec3 deep = vec3(0.96, 0.42, 0.10);
+          vec3 mid = vec3(1.00, 0.70, 0.30);
+          vec3 hot = vec3(1.00, 0.94, 0.78);
+          vec3 col = mix(deep, mid, smoothstep(0.22, 0.58, n));
+          col = mix(col, hot, smoothstep(0.58, 0.92, n));
+          float limb = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
+          col *= 1.0 - 0.5 * limb;
+          col *= 0.3 + 0.7 * uIgnite;
+          gl_FragColor = vec4(col, 1.0);
+        }`,
+    }),
   );
   sunMesh.userData.bodyId = 'sun';
   const glowTex = makeGlowTexture('#ffd9a0');
@@ -88,29 +154,96 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   systemGroup.add(sunMesh, glow);
   const sunLabel = labelsHost.querySelector<HTMLElement>('[data-id="sun"]');
 
-  const starCount = 1400;
-  const starPos = new Float32Array(starCount * 3);
-  for (let i = 0; i < starCount; i++) {
-    const r = 60 + Math.random() * 50;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    starPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-    starPos[i * 3 + 1] = r * Math.cos(phi);
-    starPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-  }
-  const starGeo = new THREE.BufferGeometry();
-  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-  const stars = new THREE.Points(
-    starGeo,
-    new THREE.PointsMaterial({
-      color: 0xdfe6ff,
-      size: 0.55,
-      sizeAttenuation: true,
-      transparent: true,
-      opacity: 0.8,
-    }),
-  );
-  scene.add(stars);
+  // Starfield: two parallax depth layers, per-star twinkle (shared shader).
+  const starTimeUniforms: { value: number }[] = [];
+  const makeStars = (
+    count: number,
+    rMin: number,
+    rMax: number,
+    size: number,
+    color: number,
+    opacity: number,
+  ): THREE.Points => {
+    const pos = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const phases = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      const r = rMin + Math.random() * (rMax - rMin);
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.cos(phi);
+      pos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+      sizes[i] = size * (0.5 + Math.random() * 1.1);
+      phases[i] = Math.random() * Math.PI * 2;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
+    const uniforms = {
+      uTime: { value: 0 },
+      uPR: { value: renderer.getPixelRatio() },
+      uColor: { value: new THREE.Color(color) },
+      uOpacity: { value: opacity },
+    };
+    starTimeUniforms.push(uniforms.uTime);
+    return new THREE.Points(
+      geo,
+      new THREE.ShaderMaterial({
+        uniforms,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        vertexShader: `
+          attribute float aSize;
+          attribute float aPhase;
+          uniform float uTime;
+          uniform float uPR;
+          varying float vTw;
+          void main() {
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = aSize * uPR * (150.0 / -mv.z);
+            vTw = 0.72 + 0.28 * sin(uTime * 1.6 + aPhase);
+            gl_Position = projectionMatrix * mv;
+          }`,
+        fragmentShader: `
+          uniform vec3 uColor;
+          uniform float uOpacity;
+          varying float vTw;
+          void main() {
+            float d = length(gl_PointCoord - vec2(0.5));
+            float a = smoothstep(0.5, 0.08, d) * uOpacity * vTw;
+            if (a < 0.01) discard;
+            gl_FragColor = vec4(uColor, a);
+          }`,
+      }),
+    );
+  };
+  const starsNear = makeStars(1100, 60, 105, 0.55, 0xdfe6ff, 0.9);
+  const starsFar = makeStars(900, 130, 190, 0.8, 0x9fb2e8, 0.55);
+  scene.add(starsNear, starsFar);
+
+  // P1 surface library — textures swap in asynchronously; until one arrives the
+  // planet keeps its flat stand-in color, so ignition never blocks on loading.
+  const texLoader = new THREE.TextureLoader();
+  const loadedTextures = new Set<THREE.Texture>();
+  const loadSurface = (url: string, onDone: (t: THREE.Texture) => void): void => {
+    texLoader.load(url, (t) => {
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = 4;
+      loadedTextures.add(t);
+      onDone(t);
+    });
+  };
+  const moonMats: THREE.MeshStandardMaterial[] = [];
+  loadSurface(moonSurfaceUrl, (t) => {
+    for (const m of moonMats) {
+      m.map = t;
+      m.color.set(0xffffff);
+      m.needsUpdate = true;
+    }
+  });
 
   const planets: Planet[] = specs.map((spec, index) => {
     const plane = new THREE.Group();
@@ -138,32 +271,86 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     holder.position.x = spec.orbit;
     pivot.add(holder);
 
-    const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(spec.size, 40, 28),
-      new THREE.MeshStandardMaterial({
-        color,
-        emissive: color,
-        emissiveIntensity: 0.38,
-        roughness: 0.75,
-        metalness: 0.15,
-      }),
-    );
+    const mat = new THREE.MeshStandardMaterial({
+      color, // stand-in until the real surface loads; identity stays in ring + label
+      roughness: 0.9,
+      metalness: 0.05,
+    });
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(spec.size, 40, 28), mat);
     mesh.userData.bodyId = spec.id;
     holder.add(mesh);
+
+    // Natural surface per planet (owner-approved P1 mapping, textures.ts).
+    // Earth additionally gets a drifting cloud shell + night-side lights;
+    // Art gets Saturn's ring (radial UVs rewritten for the alpha strip).
+    let overlay: THREE.Mesh | undefined;
+    const surface = planetSurface[spec.id];
+    if (surface) {
+      loadSurface(surfaceUrl[surface], (t) => {
+        mat.map = t;
+        mat.color.set(0xffffff);
+        mat.needsUpdate = true;
+      });
+    }
+    if (spec.id === 'podcasts') {
+      loadSurface(earthCloudsMap, (t) => {
+        const clouds = new THREE.Mesh(
+          new THREE.SphereGeometry(spec.size * 1.03, 40, 28),
+          new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            alphaMap: t,
+            transparent: true,
+            opacity: 0.85,
+            depthWrite: false,
+            roughness: 1,
+          }),
+        );
+        holder.add(clouds);
+        overlay = clouds;
+      });
+      loadSurface(earthNightMap, (t) => {
+        mat.emissiveMap = t;
+        mat.emissive.set(0xffdd99);
+        mat.emissiveIntensity = 0.35;
+        mat.needsUpdate = true;
+      });
+    }
+    if (spec.id === 'art') {
+      loadSurface(saturnRingMap, (t) => {
+        const inner = spec.size * 1.45;
+        const outer = spec.size * 2.2;
+        const ringGeo = new THREE.RingGeometry(inner, outer, 96, 1);
+        const posAttr = ringGeo.attributes.position;
+        const uvAttr = ringGeo.attributes.uv;
+        const v = new THREE.Vector3();
+        if (!posAttr || !uvAttr) return;
+        for (let i = 0; i < posAttr.count; i++) {
+          v.fromBufferAttribute(posAttr, i);
+          uvAttr.setXY(i, (v.length() - inner) / (outer - inner), 0.5);
+        }
+        const ring = new THREE.Mesh(
+          ringGeo,
+          new THREE.MeshBasicMaterial({
+            map: t,
+            color: 0xf3d9c8,
+            transparent: true,
+            opacity: 0.96,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+          }),
+        );
+        ring.rotation.x = -Math.PI / 2 + 0.32;
+        holder.add(ring);
+      });
+    }
 
     const moons: Moon[] = spec.moons.map((_moonSpec, moonIndex) => {
       const moonPivot = new THREE.Group();
       moonPivot.rotation.y = moonIndex * Math.PI;
       holder.add(moonPivot);
-      const moonMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.09, 16, 12),
-        new THREE.MeshStandardMaterial({
-          color: 0xcfd6e8,
-          emissive: 0x8a93b0,
-          emissiveIntensity: 0.3,
-          roughness: 0.9,
-        }),
-      );
+      const moonMat = new THREE.MeshStandardMaterial({ color: 0x9aa3b8, roughness: 0.95 });
+      moonMats.push(moonMat); // texture swaps in for all moons at once
+      const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(0.09, 20, 14), moonMat);
       moonMesh.position.x = spec.size + 0.3 + moonIndex * 0.24;
       moonPivot.add(moonMesh);
       return { pivot: moonPivot, mesh: moonMesh, speed: 0.9 - moonIndex * 0.25 };
@@ -174,6 +361,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       pivot,
       mesh,
       moons,
+      overlay,
       label: labelsHost.querySelector<HTMLElement>(`[data-id="${spec.id}"]`),
       scale: 1,
     };
@@ -260,9 +448,16 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
 
     for (const p of planets) {
       p.pivot.rotation.y += p.spec.speed * dt;
+      p.mesh.rotation.y += dt * 0.05;
+      if (p.overlay) p.overlay.rotation.y += dt * 0.012;
       for (const m of p.moons) m.pivot.rotation.y += m.speed * dt;
     }
-    stars.rotation.y += dt * 0.008;
+    starsNear.rotation.y += dt * 0.008;
+    starsFar.rotation.y += dt * 0.003;
+    for (const u of starTimeUniforms) u.value = time;
+    sunUniforms.uTime.value = time;
+    sunUniforms.uIgnite.value = ig;
+    sunMesh.rotation.y += dt * 0.04;
     systemGroup.rotation.y = time * 0.012 + scrollProgress * 0.9;
 
     sunMesh.scale.setScalar(0.7 + 0.3 * ig);
@@ -291,7 +486,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       p.mesh.scale.setScalar(p.scale);
     }
 
-    renderer.render(scene, camera);
+    composer.render();
     if (ig > 0.12) placeLabels();
   };
 
@@ -299,10 +494,12 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     sunMesh.scale.setScalar(1);
     sunLight.intensity = 900;
     glowMat.opacity = 0.85;
+    sunUniforms.uTime.value = performance.now() / 1000;
+    sunUniforms.uIgnite.value = 1;
     camera.position.y = 11 + scrollProgress * 5.5;
     camera.position.z = baseZ - scrollProgress * 5;
     camera.lookAt(0, 0, 0);
-    renderer.render(scene, camera);
+    composer.render();
     placeLabels();
   }
 
@@ -310,6 +507,8 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     const w = canvas.clientWidth || window.innerWidth;
     const h = canvas.clientHeight || window.innerHeight;
     renderer.setSize(w, h, false);
+    composer.setPixelRatio(renderer.getPixelRatio());
+    composer.setSize(w, h);
     camera.aspect = w / Math.max(1, h);
     // Pull the camera back on narrow (portrait) screens so outer orbits stay framed.
     baseZ = camera.aspect < 1.05 ? 46 : 30;
@@ -359,6 +558,8 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       }
     });
     glowTex.dispose();
+    for (const t of loadedTextures) t.dispose();
+    composer.dispose();
     renderer.dispose();
   };
 

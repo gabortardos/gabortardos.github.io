@@ -286,6 +286,7 @@ export default function VariantFour() {
               ◦ engine note — this background is a stripped-down adaptation of the three.js engine
               behind Solar System Explorer (see orbit 01). The full explorer ships to its own URL in
               a later milestone. prefers-reduced-motion renders a static frame instead.
+              planet imagery: NASA/JPL, via Solar System Explorer.
             </p>
             <div className="pointer-events-auto mt-6 flex flex-wrap items-center justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-[#7c86a5]">
               <span>© 2026 Gábor Tardos</span>
