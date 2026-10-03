@@ -5,3 +5,5 @@ coverage/
 .env
 .env.*
 .DS_Store
+# local design-exploration artifacts (demos, scratch) — never shipped
+/design/
