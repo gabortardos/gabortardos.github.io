@@ -98,6 +98,14 @@ section accents, not from recolored planets.
       global rotation would fight the framing.
 - [x] Reduced motion: the same applyCamera positions a static framed view for the
       current scroll position (no flight, no orbits).
+- [x] **P2.1 fixes (owner review 2026-10-03):** close-ups now park the camera
+      SUNWARD of the planet — its lit, near-full phase faces us (parking outside
+      the orbit had shown the dark side); flights blend radius + shortest-way
+      azimuth so the camera arcs around the sun instead of sweeping through it;
+      Earth's clouds actually drift now (the async texture callback assigned the
+      mesh to a variable the Planet record had already snapshotted as undefined
+      — surfaced via a getter); orbit rings fade out on hover and during a
+      planet's cinematic close-up (wayfinding at a distance, invisible up close).
 
 **P3 — Interaction depth**
 - [ ] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
@@ -136,4 +144,5 @@ section accents, not from recolored planets.
 | 2026-10-03 | v4 P1.1 CI deploy (run for `440679d`) + live verification | ✅ green — live root (cache-busted) serves `index-BroVYufH.js` (310,603 B) which references `OrreryBackground-LfZ8k9zU.js`; that chunk live at HTTP 200, 570,894 bytes = exact local dist match. P1.1 live on `/#/v4`. Awaiting owner re-review + the still-pending P0 smoke test. |
 | 2026-10-03 | v4 P1.2 natural rotation — local gate + CI (`102ce07`) | ✅ green — 0 TS errors · 3/3 tests · build OK. Main bundle 310.46 kB / 100.15 kB gzip unchanged; orrery chunk 572.9 kB (+2 kB for the tilt/spin calibration maps). Fix for the owner's “80s model” Saturn note: axial tilt + visible ordered spin + harmonized moons + system ×0.7 + rings 0.099. |
 | 2026-10-03 | v4 P2 cinematic scroll — local gate + CI + live verification (`ca2434a`) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk 574.2 kB, +1.3 kB for the flight system + rim shells). CI ✓ for both commits incl. Pages deploy. Live (cache-busted): root → `index-BOcDYP1b.js` → `OrreryBackground-DpIJRk_Z.js` at 574,220 bytes = exact local match. P1.2 + P2 live on `/#/v4`; awaiting owner review. |
+| 2026-10-03 | v4 P2.1 owner-review fixes — local gate + CI + live verification (`8696ff4`) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk 574.8 kB; main bundle unchanged). CI ✓ incl. Pages deploy; live (cache-busted) `OrreryBackground-Bn38fedT.js` = 574,757 bytes = exact local match. Lit-side close-ups, drifting Earth clouds, orbit-ring fades on hover/zoom, sun-arc flights. |
 
