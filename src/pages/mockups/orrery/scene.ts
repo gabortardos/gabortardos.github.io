@@ -43,6 +43,26 @@ type Planet = {
 
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
 
+// P1.2 natural-body calibration: every planet gets its real axial tilt and a
+// visible-but-calm spin, ordered like the real bodies (Saturn > Earth >> Europa
+// > Moon > Mercury). Rates are scene-compressed for legibility, not to scale.
+const AXIAL_TILT: Record<string, number> = {
+  apps: 0,
+  make: THREE.MathUtils.degToRad(6.7),
+  podcasts: THREE.MathUtils.degToRad(23.4),
+  art: THREE.MathUtils.degToRad(26.7),
+  songs: THREE.MathUtils.degToRad(0.1),
+};
+const SPIN: Record<string, number> = {
+  apps: 0.045, // mercury — 58.6 day crawl
+  make: 0.06, // the moon, tidally slow
+  podcasts: 0.3, // earth — the lively one
+  art: 0.38, // saturn spins fastest of the visible bodies, as it should
+  songs: 0.07, // europa, tidally locked crawl
+};
+/** P1.2: whole-system orbital motion slowed 30% (owner calibration) */
+const SYSTEM_RATE = 0.7;
+
 function makeGlowTexture(hex: string): THREE.CanvasTexture {
   const size = 128;
   const cnv = document.createElement('canvas');
@@ -311,7 +331,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
     const color = new THREE.Color(spec.color);
     plane.add(
-      new THREE.LineLoop(ringGeo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.11 })), // dark hint, not a wire
+      new THREE.LineLoop(ringGeo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.099 })), // dark hint, not a wire — P1.2: 10% darker
     );
 
     const pivot = new THREE.Group();
@@ -320,6 +340,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
 
     const holder = new THREE.Group();
     holder.position.x = spec.orbit;
+    holder.rotation.z = AXIAL_TILT[spec.id] ?? 0; // real axial tilt — ring + moons ride the equator
     pivot.add(holder);
 
     const mat = new THREE.MeshStandardMaterial({
@@ -390,7 +411,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
             depthWrite: false,
           }),
         );
-        ring.rotation.x = -Math.PI / 2 + 0.32;
+        ring.rotation.x = -Math.PI / 2; // exactly equatorial — the holder's axial tilt does the tipping
         holder.add(ring);
       });
     }
@@ -404,7 +425,14 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 16), moonMat);
       moonMesh.position.x = spec.size + 0.3 + moonIndex * 0.24;
       moonPivot.add(moonMesh);
-      return { pivot: moonPivot, mesh: moonMesh, speed: 0.55 - moonIndex * 0.15 };
+      // P1.2: moon orbits harmonized with the planet's natural spin — calm,
+      // ordered (inner faster, Kepler-style) and never dead still.
+      const spin = SPIN[spec.id] ?? 0.05;
+      return {
+        pivot: moonPivot,
+        mesh: moonMesh,
+        speed: Math.max(0.09 - moonIndex * 0.025, spin * (0.9 - moonIndex * 0.15)),
+      };
     });
 
     return {
@@ -497,9 +525,9 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     const ig = easeOutCubic(Math.min(1, time / 2.4));
 
     for (const p of planets) {
-      p.pivot.rotation.y += p.spec.speed * dt;
-      p.mesh.rotation.y += dt * 0.02;
-      if (p.overlay) p.overlay.rotation.y += dt * 0.006;
+      p.pivot.rotation.y += p.spec.speed * SYSTEM_RATE * dt;
+      p.mesh.rotation.y += dt * (SPIN[p.spec.id] ?? 0.05);
+      if (p.overlay) p.overlay.rotation.y += dt * (SPIN[p.spec.id] ?? 0.05) * 1.2;
       for (const m of p.moons) m.pivot.rotation.y += m.speed * dt;
     }
     starsNear.rotation.y += dt * 0.008;
@@ -508,7 +536,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     sunUniforms.uTime.value = time;
     sunUniforms.uIgnite.value = ig;
     sunMesh.rotation.y += dt * 0.04;
-    systemGroup.rotation.y = time * 0.006 + scrollProgress * 0.9;
+    systemGroup.rotation.y = time * 0.006 * SYSTEM_RATE + scrollProgress * 0.9;
 
     sunMesh.scale.setScalar(0.7 + 0.3 * ig);
     sunLight.intensity = 380 * ig;
