@@ -21,8 +21,8 @@ const cards: Card[] = [
     title: 'Solar System Explorer',
     kind: '3D experience',
     blurb: 'A spin through an AI-enhanced 3D solar system. Made for teaching, kept for fun.',
-    href: 'https://github.com/gabortardos/solar-system-explorer',
-    cta: 'View the source',
+    href: 'https://solar-system-explorer-gabor.gabortardos.chatgpt.site',
+    cta: 'Explore it live',
   },
   {
     title: 'Support Automation',

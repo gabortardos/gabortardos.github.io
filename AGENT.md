@@ -64,8 +64,13 @@ Append to ROADMAP's verification log after every gate run.
    A logo asset exists at `~/Desktop/deutschmeister logo1.png` (ask owner before using).
 3. **Solar System Explorer (OpenAI version)** — 3D interactive AI-enhanced model of the
    solar system (training/teaching/fun). Repo `gabortardos/solar-system-explorer` (public).
-   Plan: deploy it to its own Pages URL (`https://gabortardos.github.io/solar-system-explorer/`)
-   and link as a live demo. Check/fix its Vite `base` when deploying.
+   **LIVE since V1.1 via ChatGPT Sites:**
+   https://solar-system-explorer-gabor.gabortardos.chatgpt.site/ (verified HTTP 200,
+   2026-10-03) — this is the demo URL used across the site. The earlier plan to deploy it
+   to its own GitHub Pages URL is obsolete (revisit only if a standalone/custom-domain
+   deploy is ever wanted). Its repo also holds `public/textures/` planet/Moon/Sun/cloud/ring
+   imagery — candidate source for v4's upgraded planet materials (check license/attribution
+   before publishing on the portfolio).
 4. **solar-system-glm** — GLM-built version ("for fun"), repo public. Feature as a second
    entry OR one story covering both versions (OPEN DECISION 6).
 5. **AI podcasts** (generated) — audio players/embeds. Hosting source TBD (OPEN DECISION 3).
@@ -90,8 +95,8 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
 - **M1 — Design system + homepage.** Typography/palette/spacing/motion + hero, intro,
   featured creations. RESOLVE OPEN DECISIONS 1–2 first.
 - **M2 — Creations gallery + project pages + media.** Filterable gallery, project detail
-  pages, image lightbox, audio players, automation case studies; deploy solar-system-explorer
-  demo. Resolve OPEN DECISIONS 3, 5, 6 as they block.
+  pages, image lightbox, audio players, automation case studies (explorer live-demo link
+  wired 2026-10-03). Resolve OPEN DECISIONS 3, 5, 6 as they block.
 - **M3 — Sveltia admin.** Collections config, OAuth gateway, media handling, seed ALL current
   content from the inventory above. DoD: owner performs one real edit end-to-end, sees it live.
 - **M4 — Polish.** Motion refinement, SEO/OG meta tags, dark mode, optional custom domain.

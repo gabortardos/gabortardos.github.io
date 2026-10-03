@@ -25,7 +25,7 @@ const projects: Project[] = [
     tag: '3D · AI-enhanced',
     status: 'LIVE DEMO',
     blurb: 'Interactive 3D model of the solar system for training, teaching and fun.',
-    href: 'https://github.com/gabortardos/solar-system-explorer',
+    href: 'https://solar-system-explorer-gabor.gabortardos.chatgpt.site',
   },
   {
     code: 'PRJ-03',

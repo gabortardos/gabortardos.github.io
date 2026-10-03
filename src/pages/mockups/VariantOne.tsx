@@ -24,8 +24,8 @@ const creations: Creation[] = [
     title: 'Solar System Explorer',
     kind: '3D experience',
     blurb: 'Interactive AI-enhanced 3D model of the solar system, built for teaching and for fun.',
-    href: 'https://github.com/gabortardos/solar-system-explorer',
-    cta: 'Source →',
+    href: 'https://solar-system-explorer-gabor.gabortardos.chatgpt.site',
+    cta: 'Live demo →',
   },
   {
     index: '03',

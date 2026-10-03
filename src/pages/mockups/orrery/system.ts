@@ -59,7 +59,7 @@ export const system = {
           name: 'Solar System Explorer',
           note: 'Interactive 3D solar system for training, teaching and fun. Its engine is the sky behind this page.',
           status: 'LIVE',
-          href: 'https://github.com/gabortardos/solar-system-explorer',
+          href: 'https://solar-system-explorer-gabor.gabortardos.chatgpt.site',
         },
       ],
       orbit: 6.2,
