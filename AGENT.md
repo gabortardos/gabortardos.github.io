@@ -28,6 +28,12 @@ site, not an application with users/accounts.
 - React 18 + Vite 5 + TypeScript **strict** (no `any`) + Tailwind CSS + framer-motion
   (subtle motion only — this is a portfolio, not a toy).
 - react-router — use **HashRouter** (SPA on GitHub Pages without 404-on-refresh hacks).
+- **three.js** (added 2026-10-03, owner-approved for Variant 4 “System”): plain `three`,
+  NO react-three-fiber. Imported only by `src/pages/mockups/orrery/scene.ts`, reachable
+  solely via the lazy `OrreryBackground` chunk — never from the main bundle (main stays
+  ~100 kB gzip; orrery chunk ~135 kB gzip, loads only on `/#/v4`). Engine conventions:
+  DPR capped at 2, RAF paused on tab-hide, `prefers-reduced-motion` → single static frame,
+  full geometry/material/texture dispose on unmount, WebGL failure → CSS gradient fallback.
 - Vitest for logic that justifies tests (content parsing, helpers). Keep the test suite
   lighter than an app like deutschmeister — this is a content site.
 - **Admin: Sveltia CMS** (git-based, free, MIT; verified alive & feature-complete 2026-09).
@@ -147,11 +153,24 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   `npx js-yaml .github/workflows/deploy.yml` before pushing.
 - `src/lib/cn.ts` (+ test) is the class-join helper the M1 design system/components will use.
 - The M0 placeholder homepage was replaced (2026-09-28) by a **temporary variant chooser**
-  (`/#/`) + 3 mockups (`/#/v1|v2|v3`) while OPEN DECISION 1 was resolved via the variants
-  route — these are exploration scaffolding, not the design system. `HomePage.tsx` was
-  deleted in the process; the winner gets rebuilt properly as `HomePage.tsx` + tokens.
-  Fonts loaded via Google Fonts `<link>` in `index.html` (Inter, Space Grotesk, JetBrains
-  Mono, Instrument Serif) + `font-{body,display,serif,mono}` utilities + `animate-marquee`.
+  (`/#/`) + mockups (`/#/v1|v2|v3`, joined 2026-10-03 by `/#/v4`) while OPEN DECISION 1 was
+  resolved via the variants route — these are exploration scaffolding, not the design system.
+  `HomePage.tsx` was deleted in the process; the winner gets rebuilt properly as
+  `HomePage.tsx` + tokens. Fonts loaded via Google Fonts `<link>` in `index.html` (Inter,
+  Space Grotesk, JetBrains Mono, Instrument Serif) + `font-{body,display,serif,mono}`
+  utilities + `animate-marquee`.
+- **Variant 4 “System” (added 2026-10-03, owner idea):** live three.js solar system as the
+  page background — sun = Gábor, planets = creation categories, moons = projects. The shared
+  spec `src/pages/mockups/orrery/system.ts` drives both the 3D scene and the DOM sections.
+  Hybrid nav: raycast planet click → smooth-scroll to its section, plus normal DOM links
+  (3D is never the only way to navigate). monoai-style ignition intro + scroll-lit text;
+  one accent hue per orbit (apps emerald / make amber / podcasts violet / art pink / songs
+  cyan over deep-space `#04060d`) — the “own color design”. Design-research note: the owner's
+  references fusionai.framer.website & monoai.framer.website are both resold Framer
+  templates — techniques taken (type scale, welcome animation, scroll-lit text), skin
+  intentionally not copied. If v4 wins M1 it also reframes OPEN DECISION 6 (explorer engine
+  becomes the site's story; GLM version stays a separate entry) and makes deploying the real
+  explorer to its own Pages URL part of M2.
 - Owner machine: Node v22, npm 10.9 (`engines: >=20`). `gh` CLI v2.101 authenticated as
   `gabortardos` (scopes incl. `repo`, `workflow`) — usable for Pages/API/run-watching.
 - `.DS_Store` is gitignored; keep it that way on macOS.

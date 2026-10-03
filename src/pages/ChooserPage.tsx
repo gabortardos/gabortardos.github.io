@@ -16,6 +16,11 @@ const variants = [
     name: 'Variant 3 — “Studio”',
     desc: 'Light & warm, friendly editorial. Cream canvas, soft rounded cards, orange accent. Claura flavor — the light counterpoint.',
   },
+  {
+    path: '/v4',
+    name: 'Variant 4 — “System”',
+    desc: 'A live three.js solar system behind the content — sun = Gábor, planets = creation categories, moons = projects. Scroll-lit text, one accent hue per orbit, hybrid nav (planets + normal links). Heavier page; the 3D engine lazy-loads as its own chunk.',
+  },
 ];
 
 // Temporary chooser shown while the M1 design direction is being picked (OPEN DECISION 1).
@@ -29,8 +34,9 @@ export default function ChooserPage() {
         Pick a design direction
       </h1>
       <p className="mt-4 max-w-xl text-center text-sm leading-relaxed text-slate-400">
-        Three fully-styled homepage mockups. Open each, look around, then tell the agent which
-        one to build on. This page disappears once the direction is locked.
+        Four fully-styled homepage mockups — the fourth runs a live 3D solar system behind
+        the content. Open each, look around, then tell the agent which one to build on.
+        This page disappears once the direction is locked.
       </p>
       <div className="mt-10 grid w-full max-w-2xl gap-4">
         {variants.map((v) => (

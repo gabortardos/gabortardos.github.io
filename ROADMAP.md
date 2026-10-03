@@ -3,13 +3,13 @@
 > Update this file in the same commit as the work it describes. It is the shared memory
 > between AI agents (and humans) working on this repo. Full context: `AGENT.md`.
 
-## Status: Planning ✅ (2026-09-28) · M0 ✅ (2026-09-28) · M1 🔄 (variants live, owner picking) · M2 ⬜ · M3 ⬜ · M4 ⬜
+## Status: Planning ✅ (2026-09-28) · M0 ✅ (2026-09-28) · M1 🔄 (4 variants live, owner picking) · M2 ⬜ · M3 ⬜ · M4 ⬜
 
 | Milestone | State | Commit | Notes |
 |---|---|---|---|
 | Planning | ✅ done | initial | brainstorm + all architecture decisions captured in AGENT.md |
 | M0 Scaffold + live pipeline | ✅ done | `M0: scaffold + GitHub Pages deploy pipeline` | gate green; Actions→Pages workflow live; live-URL check logged below |
-| M1 Design system + homepage | 🔄 in progress | `M1: mockup variants for design direction` | OPEN DECISIONS 1–2 resolved 2026-09-28 (variants route; English only); 3 mockups live at /#/v1 /#/v2 /#/v3 — awaiting owner pick |
+| M1 Design system + homepage | 🔄 in progress | `M1: mockup variants for design direction` | OPEN DECISIONS 1–2 resolved 2026-09-28 (variants route; English only); 4 mockups live at /#/v1–/#/v4 — v4 “System” (live three.js orrery, owner idea) added 2026-10-03 — awaiting owner pick |
 | M2 Gallery + project pages + media | ⬜ | | needs OPEN DECISIONS 3, 5, 6 |
 | M3 Sveltia admin + content seeding | ⬜ | | OAuth gateway; owner end-to-end edit |
 | M4 Polish + SEO + domain | ⬜ | | needs OPEN DECISION 4 |
@@ -27,4 +27,5 @@
 | 2026-09-28 | M1 CI deploy (run for `9fc9e05`) + live check | ⚠️ workflow green BUT live site broken — legacy `pages-build-deployment` finished 6s after our deploy and **clobbered it** (last-writer-wins race): live `index.html` served raw source (`/src/main.tsx`), new bundle 404. Earlier pushes won the race by seconds — luck, not correctness. |
 | 2026-09-28 | M1 race fix — local gate + js-yaml workflow validation | ✅ green — no src changes; deploy.yml gains `actions: read` + a wait step polling the legacy run (by path + head_sha) until completed before `deploy-pages@v4`, making our artifact deterministically last. |
 | 2026-09-28 | M1 race fix — CI (run 36465908153) + live verification | ✅ green — wait step ran + deployed after legacy run; live `index.html` references `assets/index-CJQu-ksN.js` (HTTP 200, contains variant content). Mockup URLs live: `/#/` chooser, `/#/v1`, `/#/v2`, `/#/v3`. **Awaiting owner pick.** |
+| 2026-10-03 | M1 v4 local gate (Variant 4 “System” — live three.js orrery) | ✅ green — 0 TS errors · 3/3 tests · vite build OK. Chunking verified: main bundle 310.4 kB / 100.1 kB gzip (+~6 kB gzip vs the 3-variant build); `three` fully isolated in the lazy `OrreryBackground` chunk 539.6 kB / 135.4 kB gzip (loads only on `/#/v4`; Vite's >500 kB warning is that chunk — expected, no action). Deploy verification logged after push. |
 
