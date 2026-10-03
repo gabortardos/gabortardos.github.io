@@ -7,7 +7,7 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
-import { system } from './orrery/system';
+import { contentPlanets, system } from './orrery/system';
 import type { BodySpec, MoonSpec } from './orrery/system';
 
 const OrreryBackground = lazy(() => import('./orrery/OrreryBackground'));
@@ -148,7 +148,7 @@ function OrbitSection({ spec, index }: { spec: BodySpec; index: number }) {
     <section id={spec.id} className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
       <div className="pointer-events-auto max-w-2xl">
         <p className="font-mono text-xs uppercase tracking-[0.3em]" style={{ color: spec.color }}>
-          orbit {String(index + 1).padStart(2, '0')} · {spec.qualifier}
+          orbit {String(index + 1).padStart(2, '0')} · {spec.planet} · {spec.qualifier}
         </p>
         <h2 className="mt-4 font-display text-4xl font-bold tracking-tight text-[#f2f4fd] sm:text-6xl">
           {spec.name}
@@ -170,7 +170,7 @@ function OrbitSection({ spec, index }: { spec: BodySpec; index: number }) {
   );
 }
 
-const marqueeUnit = [...system.planets, ...system.planets];
+const marqueeUnit = [...contentPlanets, ...contentPlanets];
 
 export default function VariantFour() {
   const reduced = useReducedMotion();
@@ -206,7 +206,7 @@ export default function VariantFour() {
             GTRD · system-01
           </span>
           <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {system.planets.map((p) => (
+            {contentPlanets.map((p) => (
               <button
                 key={p.id}
                 type="button"
@@ -276,7 +276,7 @@ export default function VariantFour() {
           </div>
         </div>
 
-        {system.planets.map((p, i) => (
+        {contentPlanets.map((p, i) => (
           <OrbitSection key={p.id} spec={p} index={i} />
         ))}
 

@@ -8,12 +8,11 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import type { BodySpec } from './system';
+import type { BodySpec, PlanetKey } from './system';
 import {
   earthCloudsMap,
   earthNightMap,
   moonSurfaceUrl,
-  planetSurface,
   saturnRingMap,
   surfaceUrl,
 } from './textures';
@@ -45,22 +44,29 @@ type Planet = {
 
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
 
-// P1.2 natural-body calibration: every planet gets its real axial tilt and a
-// visible-but-calm spin, ordered like the real bodies (Saturn > Earth >> Europa
-// > Moon > Mercury). Rates are scene-compressed for legibility, not to scale.
-const AXIAL_TILT: Record<string, number> = {
-  apps: 0,
-  make: THREE.MathUtils.degToRad(6.7),
-  podcasts: THREE.MathUtils.degToRad(23.4),
-  art: THREE.MathUtils.degToRad(26.7),
-  songs: THREE.MathUtils.degToRad(0.1),
+// P3 real-solar-system calibration: every body carries its real planet's axial
+// tilt and a visible-but-calm spin, ordered like the real bodies (Jupiter >
+// Saturn > Earth > Neptune > Mars > Uranus > Mercury > Venus). Rates are
+// scene-compressed for legibility, not to scale.
+const AXIAL_TILT: Record<PlanetKey, number> = {
+  mercury: 0,
+  venus: THREE.MathUtils.degToRad(2.6), // 177° retrograde ≈ near-zero visually
+  earth: THREE.MathUtils.degToRad(23.4),
+  mars: THREE.MathUtils.degToRad(25.2),
+  jupiter: THREE.MathUtils.degToRad(3.1),
+  saturn: THREE.MathUtils.degToRad(26.7),
+  uranus: THREE.MathUtils.degToRad(97.8), // rolls on its side
+  neptune: THREE.MathUtils.degToRad(28.3),
 };
-const SPIN: Record<string, number> = {
-  apps: 0.045, // mercury — 58.6 day crawl
-  make: 0.06, // the moon, tidally slow
-  podcasts: 0.3, // earth — the lively one
-  art: 0.38, // saturn spins fastest of the visible bodies, as it should
-  songs: 0.07, // europa, tidally locked crawl
+const SPIN: Record<PlanetKey, number> = {
+  mercury: 0.045, // 58.6-day crawl
+  venus: 0.012, // slowest — 243 days, the calm outlier
+  earth: 0.3, // the lively one
+  mars: 0.26,
+  jupiter: 0.44, // fastest, as it should be
+  saturn: 0.38,
+  uranus: 0.26,
+  neptune: 0.29,
 };
 /** P1.2: whole-system orbital motion slowed 30% (owner calibration) */
 const SYSTEM_RATE = 0.7;
@@ -345,7 +351,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
 
     const holder = new THREE.Group();
     holder.position.x = spec.orbit;
-    holder.rotation.z = AXIAL_TILT[spec.id] ?? 0; // real axial tilt — ring + moons ride the equator
+    holder.rotation.z = AXIAL_TILT[spec.planet]; // real axial tilt — ring + moons ride the equator
     pivot.add(holder);
 
     const mat = new THREE.MeshStandardMaterial({
@@ -373,23 +379,18 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       ),
     );
 
-    // Natural surface per planet (owner-approved P1 mapping, textures.ts).
+    // Every planet wears its own true surface (system.ts planet → textures.ts);
     // Earth additionally gets a drifting cloud shell + night-side lights;
-    // Art gets Saturn's ring (radial UVs rewritten for the alpha strip).
-    // The cloud shell loads async — keep the mesh in a closure the record below
-    // reads via a getter. (A plain `overlay` property snapshotting at build time
-    // captured `undefined` before the texture callback ran — that was the
-    // "Earth's clouds never drift" bug.)
+    // Saturn gets its ring (radial UVs rewritten for the alpha strip).
+    // The cloud shell loads async — the record below reads the mesh through a
+    // getter so the late assignment still lands (the classic snapshot bug).
     let overlayMesh: THREE.Mesh | undefined;
-    const surface = planetSurface[spec.id];
-    if (surface) {
-      loadSurface(surfaceUrl[surface], (t) => {
-        mat.map = t;
-        mat.color.set(0xffffff);
-        mat.needsUpdate = true;
-      });
-    }
-    if (spec.id === 'podcasts') {
+    loadSurface(surfaceUrl[spec.planet], (t) => {
+      mat.map = t;
+      mat.color.set(0xffffff);
+      mat.needsUpdate = true;
+    });
+    if (spec.planet === 'earth') {
       loadSurface(earthCloudsMap, (t) => {
         const clouds = new THREE.Mesh(
           new THREE.SphereGeometry(spec.size * 1.03, 40, 28),
@@ -412,7 +413,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
         mat.needsUpdate = true;
       });
     }
-    if (spec.id === 'art') {
+    if (spec.planet === 'saturn') {
       loadSurface(saturnRingMap, (t) => {
         const inner = spec.size * 1.45;
         const outer = spec.size * 2.2;
@@ -441,22 +442,26 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       });
     }
 
-    const moons: Moon[] = spec.moons.map((_moonSpec, moonIndex) => {
+    // Project moons (content) + scenic real moons (Earth's Moon, Phobos/Deimos,
+    // the Galileans) — all ride the holder's tilted equator.
+    const moonCount = spec.moons.length + (spec.sceneMoons ?? 0);
+    const moonBase = spec.planet === 'saturn' ? spec.size * 2.4 : spec.size + 0.3;
+    const moons: Moon[] = Array.from({ length: moonCount }, (_v, moonIndex) => {
       const moonPivot = new THREE.Group();
       moonPivot.rotation.y = moonIndex * Math.PI;
       holder.add(moonPivot);
       const moonMat = new THREE.MeshStandardMaterial({ color: 0x9aa3b8, roughness: 0.95 });
       moonMats.push(moonMat); // texture swaps in for all moons at once
       const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 16), moonMat);
-      moonMesh.position.x = spec.size + 0.3 + moonIndex * 0.24;
+      moonMesh.position.x = moonBase + moonIndex * 0.24;
       moonPivot.add(moonMesh);
-      // P1.2: moon orbits harmonized with the planet's natural spin — calm,
-      // ordered (inner faster, Kepler-style) and never dead still.
-      const spin = SPIN[spec.id] ?? 0.05;
+      // Spin-derived but banded: the giants spin so fast the raw P1.2 formula
+      // would whirl their moons — cap into a calm Kepler-style range.
+      const spin = SPIN[spec.planet];
       return {
         pivot: moonPivot,
         mesh: moonMesh,
-        speed: Math.max(0.09 - moonIndex * 0.025, spin * (0.9 - moonIndex * 0.15)),
+        speed: Math.max(0.08, Math.min(spin * (0.9 - moonIndex * 0.15), 0.16 - moonIndex * 0.02)),
       };
     });
 
@@ -548,7 +553,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
 
   /** camera parking distance per planet — Saturn's frames the full ring */
   const viewDistance = (p: Planet): number =>
-    (p.spec.id === 'art' ? p.spec.size * 8.4 : Math.max(2.6, p.spec.size * 5.8)) *
+    (p.spec.planet === 'saturn' ? p.spec.size * 8.4 : Math.max(2.6, p.spec.size * 5.8)) *
     (camera.aspect < 1.05 ? 1.55 : 1); // wider framing on portrait screens
 
   const anchorView = (a: Anchor, ig: number, pos: THREE.Vector3, look: THREE.Vector3): void => {
@@ -615,7 +620,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   let last = performance.now();
   let scrollProgress = 0;
   let camT = 0; // eased scrollProgress — flick-scrolls become buttery camera flights
-  let baseZ = 30;
+  let baseZ = 36;
 
   const onScroll = (): void => {
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -647,8 +652,8 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
 
     for (const p of planets) {
       p.pivot.rotation.y += p.spec.speed * SYSTEM_RATE * dt;
-      p.mesh.rotation.y += dt * (SPIN[p.spec.id] ?? 0.05);
-      if (p.overlay) p.overlay.rotation.y += dt * (SPIN[p.spec.id] ?? 0.05) * 1.2;
+      p.mesh.rotation.y += dt * SPIN[p.spec.planet];
+      if (p.overlay) p.overlay.rotation.y += dt * SPIN[p.spec.planet] * 1.2;
       for (const m of p.moons) m.pivot.rotation.y += m.speed * dt;
     }
     starsNear.rotation.y += dt * 0.008;
@@ -720,8 +725,8 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     composer.setPixelRatio(renderer.getPixelRatio());
     composer.setSize(w, h);
     camera.aspect = w / Math.max(1, h);
-    // Pull the camera back on narrow (portrait) screens so outer orbits stay framed.
-    baseZ = camera.aspect < 1.05 ? 50 : 33;
+    // Pull the camera back on narrow (portrait) screens so Neptune's orbit stays framed.
+    baseZ = camera.aspect < 1.05 ? 52 : 36;
     camera.updateProjectionMatrix();
     measureAnchors();
     if (reduced) renderOnce();
