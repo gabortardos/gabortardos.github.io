@@ -125,7 +125,10 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
 3. **Podcasts/songs hosting** — local files (repo/storage) vs platform embeds. BLOCKS M2 media.
 4. **Custom domain** — now / later / never. Blocks only M4.
 5. **Make automation screenshots** — available or need creating? BLOCKS M2 case studies.
-6. **Which solar-system versions to feature** — OpenAI only, or both as a story. BLOCKS M2 cards.
+6. **Which solar-system versions to feature** — owner lean (2026-10-03): explorer only for
+   launch (it is the site's literal sky, live on ChatGPT Sites); GLM version deprioritized
+   (repo currently broken; owner would restore an earlier good state minus the toy ship if it
+   is ever featured). Decide finally in M2. BLOCKS M2 cards.
 
 ## Implementation notes (append-only — newest facts for the next agent)
 
@@ -179,6 +182,24 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
 - Owner machine: Node v22, npm 10.9 (`engines: >=20`). `gh` CLI v2.101 authenticated as
   `gabortardos` (scopes incl. `repo`, `workflow`) — usable for Pages/API/run-watching.
 - `.DS_Store` is gitignored; keep it that way on macOS.
+- **Owner picked the v4 “System” direction (2026-10-03)** — “far the best one until now”; mixes
+  of v1–v3 details still allowed. v4 becomes the basis of the real M1 homepage.
+- **v4 graphics direction (2026-10-03):** owner wants HQ real planet textures from the explorer
+  repo (`public/textures/` — mercury/moon/earth day+night+clouds/saturn+ring/sun jpgs + a webp
+  `detail/` set incl. moon height map), not colored balls. Agreed approach: real textures in
+  natural colors, category identity carried by orbit rings/labels/section accents instead of
+  planet hue (tinted-textures variant stays a documented fallback). No credits file exists in
+  the explorer repo; textures look like the standard NASA/three.js-example set — add a one-line
+  “planet imagery: NASA/JPL” footer credit when they ship. Textures load in the lazy orrery
+  chunk only (small webp variants are 1–160 kB each).
+- **v4 pointer-events bug (found+fixed 2026-10-03):** the DOM-labels layer in
+  OrreryBackground was a full-viewport div WITHOUT `pointer-events-none`, stacked above the
+  canvas — it ate every hover/click, so planet navigation was dead on the live site. Rule: any
+  full-screen overlay above the canvas must be `pointer-events-none`.
+- **GLM solar-system repo state (owner, 2026-10-03):** currently “almost simple black nothing”
+  after the last prompts; an earlier version looked OK but has an annoying toy ship. If ever
+  featured, owner restores that earlier state minus the ship. Deprioritized — the explorer is
+  the featured engine.
 
 ## Resume protocol for a new agent session
 

@@ -45,7 +45,7 @@ export default function OrreryBackground({ onSelect }: Props) {
         }}
       />
       <div ref={hostRef} className="absolute inset-0" />
-      <div ref={labelsRef} className="absolute inset-0">
+      <div ref={labelsRef} className="pointer-events-none absolute inset-0">
         <div data-id="sun" className={labelClass}>
           {system.sun.name}
         </div>

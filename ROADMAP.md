@@ -3,17 +3,58 @@
 > Update this file in the same commit as the work it describes. It is the shared memory
 > between AI agents (and humans) working on this repo. Full context: `AGENT.md`.
 
-## Status: Planning ✅ (2026-09-28) · M0 ✅ (2026-09-28) · M1 🔄 (4 variants live, owner picking) · M2 ⬜ · M3 ⬜ · M4 ⬜
+## Status: Planning ✅ (2026-09-28) · M0 ✅ (2026-09-28) · M1 🔄 (v4 “System” picked 2026-10-03 — upgrading to real homepage) · M2 ⬜ · M3 ⬜ · M4 ⬜
 
 | Milestone | State | Commit | Notes |
 |---|---|---|---|
 | Planning | ✅ done | initial | brainstorm + all architecture decisions captured in AGENT.md |
 | M0 Scaffold + live pipeline | ✅ done | `M0: scaffold + GitHub Pages deploy pipeline` | gate green; Actions→Pages workflow live; live-URL check logged below |
-| M1 Design system + homepage | 🔄 in progress | `M1: mockup variants for design direction` | OPEN DECISIONS 1–2 resolved 2026-09-28 (variants route; English only); 4 mockups live at /#/v1–/#/v4 — v4 “System” (live three.js orrery, owner idea) added 2026-10-03 — awaiting owner pick |
+| M1 Design system + homepage | 🔄 in progress | `M1: mockup variants for design direction` | OPEN DECISIONS 1–2 resolved 2026-09-28; **owner picked v4 “System” 2026-10-03** — now upgrading it per the v4 dev plan below (mixes from v1–v3 allowed) |
 | M2 Gallery + project pages + media | ⬜ | | needs OPEN DECISIONS 3, 5, 6 |
 | M3 Sveltia admin + content seeding | ⬜ | | OAuth gateway; owner end-to-end edit |
 | M4 Polish + SEO + domain | ⬜ | | needs OPEN DECISION 4 |
 
+
+## V4 “System” development plan (owner picked this direction 2026-10-03)
+
+Upgrade path from the v4 mockup to the real homepage. Everything ships inside the lazy orrery
+chunk (main bundle untouched); every phase passes the verification gate. Design basis: real HQ
+planet textures in natural colors — category identity comes from orbit rings, labels and
+section accents, not from recolored planets.
+
+**P0 — Fixes (2026-10-03)**
+- [x] Planet navigation was dead on live: the DOM-labels overlay ate all pointer events →
+      fixed (`pointer-events-none` on the labels layer).
+- [x] Explorer live-demo link wired across all mockups (ChatGPT Sites URL).
+- [ ] Owner post-fix smoke test: hover glow + labels, click-to-travel, touch, portrait resize.
+
+**P1 — HQ graphics (the “not colored balls” pass)**
+- [ ] Real textures from the explorer repo `public/textures/`: Mercury, Moon (+ height-map
+      bump), Earth day/night/clouds, Saturn + ring alpha, gas-giant bands, ice moons.
+- [ ] Shader sun: fbm-noise surface + corona sprites; subtle bloom post-pass.
+- [ ] Fresnel atmosphere rim-glow on planets; drifting cloud layer + terminator on Earth.
+- [ ] Starfield upgrade: 2–3 parallax depth layers + twinkle.
+- [ ] Ship only small/1024 webp variants in the lazy chunk (~100–250 kB total);
+      “planet imagery: NASA/JPL” footer credit.
+
+**P2 — Cinematic scroll journey**
+- [ ] Scroll = camera flight: each section arrives at its planet, which rotates into frame
+      behind its text; eased keyframe camera path; reduced-motion keeps the static frame.
+
+**P3 — Interaction depth**
+- [ ] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
+- [ ] Moon landing: clicking a project card zooms to that moon while the card stays readable.
+- [ ] Nav discoverability: one-time hint after ignition, stronger hover states, touch support.
+
+**P4 — Story & wayfinding (pick per idea, optional)**
+- [ ] GLM comet easter egg crossing the system — tells the two-engines story, elegantly
+      closing OPEN DECISION 6 without a second card.
+- [ ] “You are in the X orbit” HUD indicator while scrolling.
+
+**Tie-ins to later milestones**
+- M2: project pages open as “landing views”; gallery filter as an orbit map.
+- M3: content-driven sky — Sveltia collections drive the system spec; a new project entry
+  automatically becomes a new moon in the sky.
 
 ## Verification log (append after every gate run)
 
@@ -30,4 +71,5 @@
 | 2026-10-03 | M1 v4 local gate (Variant 4 “System” — live three.js orrery) | ✅ green — 0 TS errors · 3/3 tests · vite build OK. Chunking verified: main bundle 310.4 kB / 100.1 kB gzip (+~6 kB gzip vs the 3-variant build); `three` fully isolated in the lazy `OrreryBackground` chunk 539.6 kB / 135.4 kB gzip (loads only on `/#/v4`; Vite's >500 kB warning is that chunk — expected, no action). Deploy verification logged after push. |
 | 2026-10-03 | M1 v4 CI deploy + live verification (commit `7f2b4eb`) | ✅ green — all runs ✓; live root (cache-busted) serves `assets/index-DqU0yG2w.js` (HTTP 200) containing v4 content (system-01 / Generated Songs markers); lazy chunk `OrreryBackground-wSkMrdwY.js` live at HTTP 200, 539,573 bytes (exact match with local dist). `/#/v4` fully served from production. **Awaiting owner pick among v1–v4.** |
 | 2026-10-03 | Explorer live-link fix (owner question in v4 review) | ✅ green — discovered the explorer has been **live via ChatGPT Sites since V1.1** (repo README; URL verified HTTP 200); v1–v3 cards + v4 moon spec now link the live demo instead of the GitHub repo. AGENT.md content inventory + M2 note updated (Pages-deploy plan obsolete). Owner leaning **v4 as the direction**; graphics upgrade + planet-nav discoverability + vision menu under discussion. |
+| 2026-10-03 | v4 nav-bug fix + v4 dev plan (owner picked v4) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk unchanged 539.6 kB / 135.4 kB gzip). Root cause of dead planet nav: DOM-labels overlay above the canvas lacked `pointer-events-none` → fixed in OrreryBackground. Owner picked the v4 direction; dev plan (P0 fixes → P1 HQ real textures → P2 cinematic scroll → P3 fly-to/moon landings → P4 comet/HUD) added above; AGENT.md updated (direction, textures decision lean, GLM repo state). |
 
