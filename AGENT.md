@@ -235,6 +235,28 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   featured, owner restores that earlier state minus the ship. Deprioritized — the explorer is
   the featured engine.
 
+### v4 P2.1 + P2.5 shipped (2026-10-03, owner review)
+- **Owner-review fixes:** (1) cinematic close-ups must park the camera SUNWARD of
+  the planet — parking outside the orbit shows the dark side (the lit hemisphere
+  faces the sun); blend flight positions by radius + shortest-way azimuth so the
+  camera arcs AROUND the sun instead of lerping through it. (2) Async-loaded
+  meshes (Earth's clouds) must be exposed through a getter — a plain property on
+  a synchronously-built record snapshots `undefined` before the texture callback
+  runs, and the feature silently never works. (3) Orbit rings fade out on hover
+  + cinematic close-up — owner loves the effect; keep it.
+- **The sky is now the REAL solar system (owner decision):** all 8 planets, true
+  order; content on apps=Mercury, make=Venus, podcasts=Earth, art=Saturn,
+  songs=Neptune; Mars/Jupiter/Uranus are `scenic: true` bodies (sky + labels,
+  never sections/nav — `contentPlanets` filter in system.ts). `BodySpec.planet:
+  PlanetKey` is the single source for surface/tilt/spin; europa texture dropped.
+  When adding bodies, keep planet↔ring clearances (surface + moons vs ring bands).
+- **Texture pipeline note:** macOS `sips` cannot WRITE webp on this machine —
+  convert with `npx -y sharp-cli resize <w> -i src.jpg -o dir -f webp` (one `-i`
+  per call; comma lists fail). Source textures: explorer repo checkout at
+  `~/Documents/Codex/2026-09-20/solar-system-explorer-sites-project-appgprj/work/site/public/textures`.
+- **Ops:** unbounded `curl` to the wedged :5199 dev server hangs shell chains —
+  always pass `--max-time`.
+
 ## Resume protocol for a new agent session
 
 

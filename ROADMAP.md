@@ -107,6 +107,30 @@ section accents, not from recolored planets.
       — surfaced via a getter); orbit rings fade out on hover and during a
       planet's cinematic close-up (wayfinding at a distance, invisible up close).
 
+**P2.5 — The REAL solar system** ✅ 2026-10-03 (owner decision, replaces the
+stylized Mercury/Moon/Earth/Saturn/Europa set)
+- [x] All 8 real planets in true order from the sun. Content mapping preserves
+      the section order (inner→outer): apps=Mercury · make=Venus ·
+      podcasts=Earth · art=Saturn · songs=Neptune. Mars, Jupiter and Uranus are
+      scenic bodies — full citizens of the sky + label layer, no sections/nav.
+- [x] One source of truth: `BodySpec.planet: PlanetKey` drives surface
+      (textures.ts `surfaceUrl`), axial tilt and spin (planet-keyed maps) —
+      europa texture dropped, `planetSurface` indirection removed.
+- [x] Real calibration: axial tilts incl. Uranus rolling at 97.8°; spins
+      ordered Jupiter 0.44 > Saturn 0.38 > Earth 0.30 > Neptune 0.29 > Mars
+      0.26 ≈ Uranus 0.26 > Mercury 0.045 > Venus 0.012; orbits re-spaced
+      5.0→18.8 with giants sized up (Jupiter 1.05, the showpiece).
+- [x] Scenic real moons via `sceneMoons`: Earth's Moon, Phobos+Deimos, the 4
+      Galileans, 2 Saturn shepherds (pushed outside the ring band). Moon speeds
+      spin-derived but capped into a calm Kepler band (0.16−0.02·i).
+- [x] Sections/nav/marquee render `contentPlanets` only; section kickers now
+      name the planet (“orbit 03 · earth · audio · conversations”). Scenic
+      clicks are harmless no-ops (no section to scroll to).
+- [x] Weight: +5 surfaces (venus/mars/jupiter-2048/uranus/neptune webp from the
+      explorer repo, converted via `npx sharp-cli`) − europa ≈ net +106 kB,
+      all lazy-fetched by the orrery chunk; main bundle unchanged. Establishing
+      shot pulled back (z 33→36 · portrait 50→52) to frame Neptune.
+
 **P3 — Interaction depth**
 - [ ] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
 - [ ] Moon landing: clicking a project card zooms to that moon while the card stays readable.
@@ -145,4 +169,5 @@ section accents, not from recolored planets.
 | 2026-10-03 | v4 P1.2 natural rotation — local gate + CI (`102ce07`) | ✅ green — 0 TS errors · 3/3 tests · build OK. Main bundle 310.46 kB / 100.15 kB gzip unchanged; orrery chunk 572.9 kB (+2 kB for the tilt/spin calibration maps). Fix for the owner's “80s model” Saturn note: axial tilt + visible ordered spin + harmonized moons + system ×0.7 + rings 0.099. |
 | 2026-10-03 | v4 P2 cinematic scroll — local gate + CI + live verification (`ca2434a`) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk 574.2 kB, +1.3 kB for the flight system + rim shells). CI ✓ for both commits incl. Pages deploy. Live (cache-busted): root → `index-BOcDYP1b.js` → `OrreryBackground-DpIJRk_Z.js` at 574,220 bytes = exact local match. P1.2 + P2 live on `/#/v4`; awaiting owner review. |
 | 2026-10-03 | v4 P2.1 owner-review fixes — local gate + CI + live verification (`8696ff4`) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk 574.8 kB; main bundle unchanged). CI ✓ incl. Pages deploy; live (cache-busted) `OrreryBackground-Bn38fedT.js` = 574,757 bytes = exact local match. Lit-side close-ups, drifting Earth clouds, orbit-ring fades on hover/zoom, sun-arc flights. |
+| 2026-10-03 | v4 P2.5 real solar system — local gate + CI + live verification (`8c09282`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 311.2 kB/100.4 gz unchanged; orrery chunk 578.0 kB; +5 texture assets ≈ +106 kB net, lazy). CI ✓ incl. Pages deploy; live (cache-busted) chunk byte-exact vs local. All 8 planets, real order, content on Mercury/Venus/Earth/Saturn/Neptune, Mars/Jupiter/Uranus scenic. |
 
