@@ -352,6 +352,22 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     mesh.userData.bodyId = spec.id;
     holder.add(mesh);
 
+    // P2 atmosphere: back-side additive shell — a soft limb halo that reads as an
+    // atmosphere on the scroll flybys (cheap fresnel stand-in, color = accent).
+    holder.add(
+      new THREE.Mesh(
+        new THREE.SphereGeometry(spec.size * 1.06, 48, 32),
+        new THREE.MeshBasicMaterial({
+          color,
+          transparent: true,
+          opacity: 0.1,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        }),
+      ),
+    );
+
     // Natural surface per planet (owner-approved P1 mapping, textures.ts).
     // Earth additionally gets a drifting cloud shell + night-side lights;
     // Art gets Saturn's ring (radial UVs rewritten for the alpha strip).
@@ -488,12 +504,87 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     if (id) onSelect(id);
   };
 
+  // ---- P2: cinematic scroll journey ----
+  // Scroll anchors in [0,1]: hero at 0, each planet at its DOM section's center.
+  // The camera eases between per-anchor viewpoints that are recomputed from the
+  // LIVE planet positions every frame, so framing survives the ongoing orbits.
+  type Anchor = { t: number; planet: Planet | null };
+  let anchors: Anchor[] = [{ t: 0, planet: null }];
+  const measureAnchors = (): void => {
+    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const next: Anchor[] = [{ t: 0, planet: null }];
+    for (const p of planets) {
+      const el = document.getElementById(p.spec.id);
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      const center = rect.top + window.scrollY + rect.height * 0.5 - window.innerHeight * 0.5;
+      next.push({ t: Math.min(0.995, Math.max(0.05, center / max)), planet: p });
+    }
+    next.sort((a, b) => a.t - b.t);
+    anchors = next;
+    if (reduced) renderOnce();
+  };
+  const anchorsTimer = window.setTimeout(measureAnchors, 2600); // re-measure after fonts settle
+
+  const CAM_UP = new THREE.Vector3(0, 1, 0);
+  const vPosA = new THREE.Vector3();
+  const vPosB = new THREE.Vector3();
+  const vLookA = new THREE.Vector3();
+  const vLookB = new THREE.Vector3();
+  const vTmp = new THREE.Vector3();
+  const vRight = new THREE.Vector3();
+
+  /** camera parking distance per planet — Saturn's frames the full ring */
+  const viewDistance = (p: Planet): number =>
+    (p.spec.id === 'art' ? p.spec.size * 8.4 : Math.max(2.6, p.spec.size * 5.8)) *
+    (camera.aspect < 1.05 ? 1.55 : 1); // wider framing on portrait screens
+
+  const anchorView = (a: Anchor, ig: number, pos: THREE.Vector3, look: THREE.Vector3): void => {
+    const p = a.planet;
+    if (!p) {
+      pos.set(0, 11, baseZ + (1 - ig) * 6); // hero: the classic establishing shot
+      look.set(0, 0, 0);
+      return;
+    }
+    p.mesh.getWorldPosition(look);
+    vTmp.copy(look).setY(0).normalize(); // sun → planet, flattened
+    pos
+      .copy(look)
+      .addScaledVector(vTmp, viewDistance(p) * 0.92) // park outside the orbit → lit face
+      .addScaledVector(CAM_UP, viewDistance(p) * 0.42); // slightly above the ecliptic
+    // park the planet screen-right so the text column owns the left half
+    vTmp.subVectors(pos, look).normalize();
+    vRight.crossVectors(CAM_UP, vTmp).normalize();
+    look.addScaledVector(vRight, -viewDistance(p) * (camera.aspect < 1.05 ? 0.16 : 0.34));
+  };
+
+  const smoothstep = (t: number): number => t * t * (3 - 2 * t);
+
+  /** Shared by the RAF loop (eased camT) and reduced-motion renderOnce. */
+  const applyCamera = (t: number, ig: number): void => {
+    let i = 0;
+    let b = anchors[i + 1];
+    while (b && i < anchors.length - 2 && t > b.t) {
+      i++;
+      b = anchors[i + 1];
+    }
+    const a = anchors[i] ?? { t: 0, planet: null };
+    const end = b ?? { t: a.t + 1, planet: null };
+    const k = smoothstep(Math.min(1, Math.max(0, (t - a.t) / Math.max(1e-4, end.t - a.t))));
+    anchorView(a, ig, vPosA, vLookA);
+    anchorView(end, ig, vPosB, vLookB);
+    camera.position.lerpVectors(vPosA, vPosB, k);
+    vTmp.lerpVectors(vLookA, vLookB, k);
+    camera.lookAt(vTmp);
+  };
+
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let raf = 0;
   let running = true;
   let time = 0;
   let last = performance.now();
   let scrollProgress = 0;
+  let camT = 0; // eased scrollProgress — flick-scrolls become buttery camera flights
   let baseZ = 30;
 
   const onScroll = (): void => {
@@ -536,15 +627,14 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     sunUniforms.uTime.value = time;
     sunUniforms.uIgnite.value = ig;
     sunMesh.rotation.y += dt * 0.04;
-    systemGroup.rotation.y = time * 0.006 * SYSTEM_RATE + scrollProgress * 0.9;
+    systemGroup.rotation.y = time * 0.006 * SYSTEM_RATE + scrollProgress * 0.35; // P2: camera travels now — keep only a whisper of swirl
 
     sunMesh.scale.setScalar(0.7 + 0.3 * ig);
     sunLight.intensity = 380 * ig;
     glowMat.opacity = 0.5 * ig;
 
-    camera.position.y = 11 + scrollProgress * 5.5;
-    camera.position.z = baseZ - scrollProgress * 5 + (1 - ig) * 6;
-    camera.lookAt(0, 0, 0);
+    camT += (scrollProgress - camT) * Math.min(1, dt * 4.5);
+    applyCamera(camT, ig);
 
     const id = pick();
     const planet =
@@ -573,9 +663,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     glowMat.opacity = 0.5;
     sunUniforms.uTime.value = performance.now() / 1000;
     sunUniforms.uIgnite.value = 1;
-    camera.position.y = 11 + scrollProgress * 5.5;
-    camera.position.z = baseZ - scrollProgress * 5;
-    camera.lookAt(0, 0, 0);
+    applyCamera(scrollProgress, 1);
     composer.render();
     placeLabels();
   }
@@ -590,6 +678,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     // Pull the camera back on narrow (portrait) screens so outer orbits stay framed.
     baseZ = camera.aspect < 1.05 ? 50 : 33;
     camera.updateProjectionMatrix();
+    measureAnchors();
     if (reduced) renderOnce();
   };
 
@@ -620,6 +709,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   const dispose = (): void => {
     running = false;
     cancelAnimationFrame(raf);
+    window.clearTimeout(anchorsTimer);
     canvas.removeEventListener('pointermove', onPointerMove);
     canvas.removeEventListener('pointerdown', onPointerDown);
     canvas.removeEventListener('pointerup', onPointerUp);
