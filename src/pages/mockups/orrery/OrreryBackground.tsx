@@ -7,6 +7,11 @@ type Props = { onSelect: (id: string) => void };
 const labelClass =
   'pointer-events-none absolute left-0 top-0 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 will-change-transform';
 
+// moons label smaller + dimmer than planets; visibility is distance-gated in
+// scene.ts placeLabels (near the parent planet only)
+const moonLabelClass =
+  'pointer-events-none absolute left-0 top-0 whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.22em] text-white/40 will-change-transform';
+
 // Lazy chunk wrapper: this module (and therefore `three`) only loads on /#/v4.
 // The canvas is created imperatively so React 18 StrictMode's double-effect in
 // dev never re-uses a disposed WebGL context.
@@ -51,6 +56,17 @@ export default function OrreryBackground({ onSelect }: Props) {
             {p.name}
           </div>
         ))}
+        {/* project moons (`::m`) + scenic real moons (`::s`) — the micropage layer */}
+        {system.planets
+          .flatMap((p) => [
+            ...p.moons.map((m, i) => ({ key: `${p.id}::m${i}`, name: m.name })),
+            ...(p.sceneMoons ?? []).map((m, i) => ({ key: `${p.id}::s${i}`, name: m.name })),
+          ])
+          .map((m) => (
+            <div key={m.key} data-id={m.key} className={moonLabelClass}>
+              {m.name}
+            </div>
+          ))}
       </div>
     </div>
   );

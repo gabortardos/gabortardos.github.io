@@ -27,6 +27,31 @@ export type MoonSpec = {
   href?: string;
 };
 
+/**
+ * A REAL scenic moon (2026-10-03 owner review: “real moons, not standardized —
+ * and their orbital paths are not always horizontal”). Regular satellites ride
+ * the planet's tilted equatorial plane; captured/odd ones (Earth's Moon, Triton)
+ * ride a plane referenced to the ecliptic instead — that is the real geometry.
+ */
+export type SceneMoonSpec = {
+  name: string;
+  /** moon radius in scene units — real relative order, compressed to stay visible */
+  size: number;
+  /** orbit radius as a multiple of the planet's radius — real order preserved */
+  dist: number;
+  /** extra inclination of the orbit plane (rad) — e.g. the Moon's 5.1° */
+  inc?: number;
+  /** true (default): orbit in the planet's equatorial plane, like real regular
+   *  satellites; false: orbit near the ecliptic (Earth's Moon, captured Triton) */
+  equatorial?: false;
+  /** retrograde orbit — Triton orbits backwards relative to everything else */
+  retro?: boolean;
+  /** real-ish albedo tint over the shared moon surface until explorer maps land */
+  tint?: string;
+  /** orbital angular speed (rad/s) — ordered like the real system */
+  speed: number;
+};
+
 export type BodySpec = {
   /** DOM anchor id AND scene body id (raycast hit → travel to section) */
   id: string;
@@ -41,8 +66,8 @@ export type BodySpec = {
   planet: PlanetKey;
   /** scenic body: lives in the sky + label layer, but gets no section/nav card */
   scenic?: boolean;
-  /** decorative real moons (Earth's Moon, Phobos/Deimos, the Galileans…) */
-  sceneMoons?: number;
+  /** real scenic moons (Earth's Moon, Phobos/Deimos, the Galileans, Triton…) */
+  sceneMoons?: SceneMoonSpec[];
   // ---- scene-only numbers (ignored by the DOM layer) ----
   /** orbit radius */
   orbit: number;
@@ -122,7 +147,19 @@ export const system = {
         'Conversations between me and AI voices — researched, scripted and produced with the same tools they talk about. First episodes are in production.',
       moons: [],
       planet: 'earth',
-      sceneMoons: 1, // the real Moon
+      // the real Moon — NOT an equatorial satellite: it orbits ~5.1° off the
+      // ecliptic (and far out — 3.4 planet radii here, compressed from 60)
+      sceneMoons: [
+        {
+          name: 'Moon',
+          size: 0.13,
+          dist: 3.4,
+          inc: 0.089, // 5.1° to the ecliptic — the real value
+          equatorial: false,
+          tint: '#b9bcc4',
+          speed: 0.05, // real Moon is slow — a stately 27-day drift
+        },
+      ],
       orbit: 7.7,
       size: 0.62,
       speed: 0.11,
@@ -137,7 +174,12 @@ export const system = {
       moons: [],
       planet: 'mars',
       scenic: true,
-      sceneMoons: 2, // Phobos + Deimos
+      // Phobos + Deimos — tiny, dark, near-equatorial; Phobos is the fastest
+      // moon in the real solar system and orbits closer than any other
+      sceneMoons: [
+        { name: 'Phobos', size: 0.045, dist: 1.9, inc: 0.017, tint: '#6f665c', speed: 0.38 },
+        { name: 'Deimos', size: 0.035, dist: 2.7, inc: 0.033, tint: '#7a7065', speed: 0.27 },
+      ],
       orbit: 9.2,
       size: 0.5,
       speed: 0.088,
@@ -152,7 +194,15 @@ export const system = {
       moons: [],
       planet: 'jupiter',
       scenic: true,
-      sceneMoons: 4, // the Galileans
+      // the four Galileans — real order (Io inner → Callisto outer), real size
+      // order (Ganymede > Callisto > Io > Europa), real albedo tints:
+      // sulfur Io, ice Europa, gray-brown Ganymede, dark Callisto
+      sceneMoons: [
+        { name: 'Io', size: 0.115, dist: 1.85, tint: '#d8c06d', speed: 0.22 },
+        { name: 'Europa', size: 0.105, dist: 2.25, tint: '#cfd4d9', speed: 0.17 },
+        { name: 'Ganymede', size: 0.14, dist: 2.85, tint: '#a09280', speed: 0.13 },
+        { name: 'Callisto', size: 0.13, dist: 3.6, tint: '#786c5e', speed: 0.1 },
+      ],
       orbit: 11.3,
       size: 1.05,
       speed: 0.052,
@@ -167,7 +217,12 @@ export const system = {
         'Images generated, curated and iterated with AI — prompts as brushes, models as paint. The gallery wing of the system opens in a later milestone.',
       moons: [],
       planet: 'saturn',
-      sceneMoons: 2,
+      // Prometheus + Pandora — the shepherd pair herding the F ring, just
+      // outside the main rings (real configuration)
+      sceneMoons: [
+        { name: 'Prometheus', size: 0.05, dist: 2.6, tint: '#a89c90', speed: 0.19 },
+        { name: 'Pandora', size: 0.048, dist: 2.75, tint: '#9c9186', speed: 0.17 },
+      ],
       orbit: 14.5,
       size: 0.92,
       speed: 0.041,
@@ -182,6 +237,13 @@ export const system = {
       moons: [],
       planet: 'uranus',
       scenic: true,
+      // Titania + Oberon — they ride Uranus's 97.8°-tilted equator, so their
+      // orbits stand near-VERTICAL to the ecliptic: the “not always horizontal”
+      // case, exactly as in reality
+      sceneMoons: [
+        { name: 'Titania', size: 0.085, dist: 2.3, tint: '#8a837e', speed: 0.14 },
+        { name: 'Oberon', size: 0.08, dist: 2.85, tint: '#7d746f', speed: 0.11 },
+      ],
       orbit: 16.8,
       size: 0.72,
       speed: 0.032,
@@ -196,6 +258,21 @@ export const system = {
         'Fully generated tracks — lyrics, vocals, arrangement — written with AI about the things this system orbits. Headphones recommended.',
       moons: [],
       planet: 'neptune',
+      // Triton — the famous rebel: a captured Kuiper-belt object orbiting
+      // RETROGRADE on a plane tipped well off both Neptune's equator and the
+      // ecliptic. It orbits backwards; watch it cross against the flow.
+      sceneMoons: [
+        {
+          name: 'Triton',
+          size: 0.12,
+          dist: 2.8,
+          inc: 0.4, // ≈23° off the ecliptic (real ≈130° retrograde — compressed to read)
+          equatorial: false,
+          retro: true,
+          tint: '#d9c7bd', // pinkish N₂ frost
+          speed: 0.12,
+        },
+      ],
       orbit: 18.8,
       size: 0.7,
       speed: 0.026,

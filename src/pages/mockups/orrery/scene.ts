@@ -34,6 +34,8 @@ type Planet = {
   pivot: THREE.Group;
   mesh: THREE.Mesh;
   moons: Moon[];
+  /** labels for this planet's moons (project + scenic) — shown only up close */
+  moonLabels: (HTMLElement | null)[];
   /** orbit-ring material — faded out on hover + cinematic close-ups */
   orbitMat: THREE.LineBasicMaterial;
   /** optional slow-rotating shell around the planet, e.g. Earth's clouds */
@@ -319,7 +321,9 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   loadSurface(moonSurfaceUrl, (t) => {
     for (const m of moonMats) {
       m.map = t;
-      m.color.set(0xffffff);
+      // scenic real moons keep their albedo tint (Io's sulfur etc.); the shared
+      // lunar surface multiplies it — individual explorer maps can replace this
+      m.color.set((m.userData.tint as number | undefined) ?? 0xffffff);
       m.needsUpdate = true;
     }
   });
@@ -442,27 +446,60 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       });
     }
 
-    // Project moons (content) + scenic real moons (Earth's Moon, Phobos/Deimos,
-    // the Galileans) — all ride the holder's tilted equator.
-    const moonCount = spec.moons.length + (spec.sceneMoons ?? 0);
+    // Project moons (content) + scenic REAL moons. Real geometry (owner review
+    // 2026-10-03): regular satellites orbit the planet's tilted equatorial plane
+    // (holder); the real exceptions — Earth's Moon, captured Triton — orbit a
+    // plane referenced to the ecliptic (eclipticHost), each with its own real
+    // extra inclination. Project moons stay evenly spaced on the equator.
+    const eclipticHost = new THREE.Group();
+    eclipticHost.position.set(spec.orbit, 0, 0);
+    pivot.add(eclipticHost);
     const moonBase = spec.planet === 'saturn' ? spec.size * 2.4 : spec.size + 0.3;
-    const moons: Moon[] = Array.from({ length: moonCount }, (_v, moonIndex) => {
+    const moons: Moon[] = [];
+    const moonLabels: (HTMLElement | null)[] = [];
+
+    const buildMoon = (
+      host: THREE.Group,
+      index: number,
+      opts: { size: number; dist: number; inc: number; speed: number; tint?: number; pickId?: string },
+    ): void => {
       const moonPivot = new THREE.Group();
-      moonPivot.rotation.y = moonIndex * Math.PI;
-      holder.add(moonPivot);
-      const moonMat = new THREE.MeshStandardMaterial({ color: 0x9aa3b8, roughness: 0.95 });
-      moonMats.push(moonMat); // texture swaps in for all moons at once
-      const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 16), moonMat);
-      moonMesh.position.x = moonBase + moonIndex * 0.24;
+      moonPivot.rotation.y = index * Math.PI;
+      moonPivot.rotation.x = opts.inc; // real extra inclination of the orbit plane
+      host.add(moonPivot);
+      const moonMat = new THREE.MeshStandardMaterial({ color: opts.tint ?? 0x9aa3b8, roughness: 0.95 });
+      moonMat.userData.tint = opts.tint;
+      moonMats.push(moonMat); // shared lunar surface swaps in for all moons at once
+      const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(opts.size, 24, 16), moonMat);
+      moonMesh.position.x = opts.dist;
+      if (opts.pickId) moonMesh.userData.bodyId = opts.pickId; // pickable project moon
       moonPivot.add(moonMesh);
-      // Spin-derived but banded: the giants spin so fast the raw P1.2 formula
-      // would whirl their moons — cap into a calm Kepler-style range.
-      const spin = SPIN[spec.planet];
-      return {
-        pivot: moonPivot,
-        mesh: moonMesh,
-        speed: Math.max(0.08, Math.min(spin * (0.9 - moonIndex * 0.15), 0.16 - moonIndex * 0.02)),
-      };
+      moons.push({ pivot: moonPivot, mesh: moonMesh, speed: opts.speed });
+    };
+
+    // project moons — calm banded speeds (the giants spin so fast the raw
+    // P1.2 formula would whirl their moons), capped into a Kepler-style range
+    const spin = SPIN[spec.planet];
+    spec.moons.forEach((_moon, i) => {
+      buildMoon(holder, i, {
+        size: 0.09,
+        dist: moonBase + i * 0.24,
+        inc: 0,
+        speed: Math.max(0.08, Math.min(spin * (0.9 - i * 0.15), 0.16 - i * 0.02)),
+        pickId: `${spec.id}::m${i}`,
+      });
+      moonLabels.push(labelsHost.querySelector(`[data-id="${spec.id}::m${i}"]`));
+    });
+    // scenic real moons — real sizes, distances, inclinations and speeds
+    (spec.sceneMoons ?? []).forEach((moon, i) => {
+      buildMoon(moon.equatorial === false ? eclipticHost : holder, spec.moons.length + i, {
+        size: moon.size,
+        dist: spec.size * moon.dist,
+        inc: moon.inc ?? 0,
+        speed: moon.retro ? -moon.speed : moon.speed,
+        tint: moon.tint ? new THREE.Color(moon.tint).getHex() : undefined,
+      });
+      moonLabels.push(labelsHost.querySelector(`[data-id="${spec.id}::s${i}"]`));
     });
 
     return {
@@ -470,6 +507,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       pivot,
       mesh,
       moons,
+      moonLabels,
       orbitMat,
       get overlay(): THREE.Mesh | undefined {
         return overlayMesh;
@@ -483,7 +521,12 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   // “travel” click (so scrolling/drags never trigger navigation).
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2(2, 2);
-  const pickables = [sunMesh, ...planets.map((p) => p.mesh)];
+  // Pickable: sun, planets, and PROJECT moons (bodyId `${planetId}::m${index}`)
+  // — scenic real moons stay decoration. Moon ids open the moon micropage.
+  const projectMoonMeshes = planets.flatMap((p) =>
+    p.moons.filter((m) => typeof m.mesh.userData.bodyId === 'string').map((m) => m.mesh),
+  );
+  const pickables = [sunMesh, ...planets.map((p) => p.mesh), ...projectMoonMeshes];
 
   let hovered: Planet | null = null;
   let hoveredSun = false;
@@ -559,8 +602,12 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   const anchorView = (a: Anchor, ig: number, pos: THREE.Vector3, look: THREE.Vector3): void => {
     const p = a.planet;
     if (!p) {
-      pos.set(0, 11, baseZ + (1 - ig) * 6); // hero: the classic establishing shot
-      look.set(0, 0, 0);
+      // Hero establishing shot: camera lowered + aimed slightly below the sun so
+      // the orbit band projects vertically CENTERED (owner review 2026-10-03 —
+      // with y=11/look(0,0,0) the near orbits crowd the bottom: near edge ~16°
+      // below the view axis vs only ~6° above). Now ≈ ±9° around the axis.
+      pos.set(0, 8, baseZ + (1 - ig) * 6);
+      look.set(0, -2, 0);
       return;
     }
     p.mesh.getWorldPosition(look);
@@ -640,6 +687,20 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       el.style.opacity = v.z > 1 ? '0' : '1';
     };
     for (const p of planets) place(p.label, p.mesh);
+    // Moon labels: shown only while the camera is close to the parent planet —
+    // the moons are the project layer; legible at close range, noise at distance.
+    for (const p of planets) {
+      p.mesh.getWorldPosition(v);
+      const near = v.distanceTo(camera.position) < viewDistance(p) * 2.4;
+      p.moons.forEach((m, i) => {
+        const el = p.moonLabels[i];
+        if (!el) return;
+        m.mesh.getWorldPosition(v);
+        v.project(camera);
+        el.style.transform = `translate(-50%, -170%) translate(${((v.x * 0.5 + 0.5) * w).toFixed(1)}px, ${((-v.y * 0.5 + 0.5) * h).toFixed(1)}px)`;
+        el.style.opacity = v.z > 1 || !near ? '0' : '1';
+      });
+    }
   };
 
   const frame = (now: number): void => {
@@ -675,13 +736,14 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     const planet =
       id !== null && id !== 'sun' ? planets.find((p) => p.spec.id === id) ?? null : null;
     const sunHot = id === 'sun';
+    const moonHot = id !== null && id.includes('::'); // hovering a project moon
     if (planet !== hovered || sunHot !== hoveredSun) {
       if (hovered) setHot(hovered.label, hovered.spec.color, false);
       if (planet) setHot(planet.label, planet.spec.color, true);
       hovered = planet;
       hoveredSun = sunHot;
     }
-    canvas.style.cursor = planet !== null || sunHot ? 'pointer' : 'default';
+    canvas.style.cursor = planet !== null || sunHot || moonHot ? 'pointer' : 'default';
     for (const p of planets) {
       const target = p === hovered ? 1.07 : 1;
       p.scale += (target - p.scale) * Math.min(1, dt * 6);
