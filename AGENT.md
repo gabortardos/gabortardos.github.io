@@ -257,6 +257,30 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
 - **Ops:** unbounded `curl` to the wedged :5199 dev server hangs shell chains —
   always pass `--max-time`.
 
+### v4 P2.6 shipped (2026-10-04, owner review)
+- **Real moon geometry:** moons orbit the parent's EQUATORIAL plane by default
+  (the tilted holder carries them) EXCEPT `equatorial: false` bodies (Earth's
+  Moon ~5.1° off the ecliptic; Triton retrograde + inclined) which ride an
+  untilted `eclipticHost` placed at the same orbit position. Per-moon spec =
+  `SceneMoonSpec` in system.ts. Albedo tints survive the async shared-texture
+  swap via `mat.userData.tint` (read in the load callback) — swap in real
+  per-moon explorer maps (drop into `orrery/assets/` + a lookup keyed by name)
+  when the owner finishes them.
+- **Micropage pattern:** 3D clicks and nav clicks share ONE `select(id)` in
+  VariantFour — planet → travel + planet panel; `id::m<n>` → travel + moon
+  panel; `sun` → top; scenic → no-op. Panel = left slide-over because cinematic
+  close-ups park planets screen-RIGHT. Moon labels (`::m` project / `::s`
+  scenic) are placed by `placeLabels` with camera-distance gating at the
+  PARENT planet (visible only up close).
+- **Hero framing math:** to vertically CENTER an orbit band viewed from above,
+  aim the look-target BELOW the plane's center — perspective enlarges the near
+  edge, so a centered lookAt pushes the band low. (0,11,36)+look(0,0,0) gave
+  +6°/−16°; (0,8,36)+look(0,−2,0) gives ≈±9°.
+- **Ops:** multi-line `git commit -m` with unicode mangles this shell — write
+  the message to a file and `git commit -F`. Headless-Chrome
+  `--virtual-time-budget` DOM dumps starve rAF (labels appear unpositioned in
+  the dump ≠ broken runtime; screenshot size + tsc/tests/build are the gate).
+
 ## Resume protocol for a new agent session
 
 

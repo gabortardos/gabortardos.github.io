@@ -131,6 +131,29 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
       all lazy-fetched by the orrery chunk; main bundle unchanged. Establishing
       shot pulled back (z 33→36 · portrait 50→52) to frame Neptune.
 
+**P2.6 — Real moons, centered hero, micropages** ✅ 2026-10-04 (owner review)
+- [x] Moon geometry is REAL: regular satellites orbit the parent's tilted
+      equatorial plane, Earth's Moon rides 5.1° off the ECLIPTIC (the real
+      fact — it is not an equatorial satellite), and the extreme cases are now
+      in the sky: Titania+Oberon on Uranus's 97.8° near-vertical plane,
+      retrograde inclined Triton at Neptune. `sceneMoons` became
+      `SceneMoonSpec[]` (name/size/dist/inc/plane/retro/tint/speed) with real
+      size+distance order (Ganymede>Callisto>Io>Europa, Phobos inner+fastest)
+      and albedo tints (Io sulfur, Europa ice) over the shared lunar surface —
+      swap in per-moon explorer textures when the owner finishes them.
+- [x] Hero framing: establishing shot re-aimed (cam y 11→8, look −2) so the
+      orbit band projects vertically CENTERED (previously the near orbits
+      crowded the bottom: ~16° below the view axis vs ~6° above). Header+hero
+      step LEFT at rest (≤170 px, ≥1024 px viewports only — safe edge + measure
+      kept) and resolve back to the standard position over the first 240 px of
+      scroll.
+- [x] Micropages (category → subproject breakdown, owner request): left
+      slide-over panel — planet click in 3D OR nav travels AND opens the
+      category description + its subproject moon rows; project moons are
+      raycast-pickable (`id::m<n>`) and open the project panel (note, status,
+      open-project link); moon labels fade in only near the parent planet;
+      MoonCards without an href open the panel instead of doing nothing.
+
 **P3 — Interaction depth**
 - [ ] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
 - [ ] Moon landing: clicking a project card zooms to that moon while the card stays readable.
@@ -170,4 +193,5 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 | 2026-10-03 | v4 P2 cinematic scroll — local gate + CI + live verification (`ca2434a`) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk 574.2 kB, +1.3 kB for the flight system + rim shells). CI ✓ for both commits incl. Pages deploy. Live (cache-busted): root → `index-BOcDYP1b.js` → `OrreryBackground-DpIJRk_Z.js` at 574,220 bytes = exact local match. P1.2 + P2 live on `/#/v4`; awaiting owner review. |
 | 2026-10-03 | v4 P2.1 owner-review fixes — local gate + CI + live verification (`8696ff4`) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk 574.8 kB; main bundle unchanged). CI ✓ incl. Pages deploy; live (cache-busted) `OrreryBackground-Bn38fedT.js` = 574,757 bytes = exact local match. Lit-side close-ups, drifting Earth clouds, orbit-ring fades on hover/zoom, sun-arc flights. |
 | 2026-10-03 | v4 P2.5 real solar system — local gate + CI + live verification (`8c09282`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 311.2 kB/100.4 gz unchanged; orrery chunk 578.0 kB; +5 texture assets ≈ +106 kB net, lazy). CI ✓ incl. Pages deploy; live (cache-busted) chunk byte-exact vs local. All 8 planets, real order, content on Mercury/Venus/Earth/Saturn/Neptune, Mars/Jupiter/Uranus scenic. |
+| 2026-10-04 | v4 P2.6 real moons + centered hero + micropages — local gate + CI + live verification (`07ceec0`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 320.1 kB; orrery chunk 579.4 kB; no new assets). CI ✓ incl. Pages deploy; live (cache-busted) `index-C0kf3ZYb.js` (320,143 B) + `OrreryBackground-Ccn6Bovs.js` (579,418 B) both byte-exact vs local. Headless-Chrome DOM probe: all 16 moon labels render, hero shift `translateX(-136px)` on header+hero at rest. |
 
