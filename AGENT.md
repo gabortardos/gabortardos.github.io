@@ -202,6 +202,20 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   Moon height-map skipped (weight); planet fresnel rim deferred to P2. Owner OK'd admin
   at M3; new-project moons will pick their look from a surface dropdown (explorer
   library, exposed as a Sveltia collection field) — textures stay per-moon swappable.
+- **P1.1 calibration (2026-10-03, owner A/B verdict):** owner compared old vs P1
+  engines side-by-side (`design/compare.html`; pre-P1 engine extracted from git
+  `91bf356~1` into `design/old-scene.ts`; gitignored; vite dev on :5199). Verdict:
+  keep real textures but STOP over-lighting them. Rules learned: (1) textured PBR
+  planets need ~40% of the light self-glowing planets needed (point 900→380,
+  ambient 1.1→0.55) plus ACES tone mapping or they wash out; (2) bloom brightens
+  everything — re-tune line/hover opacities after adding it (rings 0.22→0.11);
+  (3) glow sprites multiply with bloom — keep the sprite small (11→5.5) and let
+  bloom paint the corona; (4) motion budget: twinkle ≤0.35 Hz, hover pop ≤1.07,
+  system spin ≤0.006 rad/s — faster reads “cheap”; (5) distancing is feel, not
+  just camera — dimmer sun + smaller halo + pulled-back camera (z 33/50) restores
+  depth. Sun is now a 3D simplex fbm photosphere (convection + granulation + limb
+  darkening + chromosphere rim); sun label removed. Owner offered hooking up an
+  external design/animation app — declined for now; in-shader quality sufficed.
 - **GLM solar-system repo state (owner, 2026-10-03):** currently “almost simple black nothing”
   after the last prompts; an earlier version looked OK but has an annoying toy ship. If ever
   featured, owner restores that earlier state minus the ship. Deprioritized — the explorer is

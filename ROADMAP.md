@@ -43,6 +43,26 @@ section accents, not from recolored planets.
       webp/png), above the 250 kB estimate but fetched only after main paint, behind
       ignition; “planet imagery: NASA/JPL, via Solar System Explorer” footer credit added.
 
+**P1.1 — Calibration pass (owner A/B verdict on P1)** ✅ 2026-10-03
+- Owner compared the pre-P1 engine vs P1 side-by-side (local `design/compare.html`,
+  gitignored): old wins distancing/depth; new wins stars (keep, slightly brighter)
+  and orbit colors (keep, but as dark as old); planets stay real-textured but the
+  lighting washed them out; sun read “very cheap”; motion too twitchy.
+- [x] Depth/distancing: camera pulled back (z 30→33, portrait 46→50); glow sprite
+      11→5.5 — the “huge ball behind the sun” is gone, bloom paints the corona.
+- [x] Honest lighting for textured planets: ACES filmic tone mapping; point light
+      900→380; ambient 1.1→0.55; bloom 0.35/0.7/0.82 → 0.22/0.55/0.9; night lights
+      0.35→0.25; clouds 0.85→0.7. Textures keep their true colors now.
+- [x] Sun rebuilt: true 3D simplex-noise photosphere — 5-octave fbm convection
+      cells + domain-warped granulation (no UV seams), temperature ramp, limb
+      darkening, chromosphere rim. Sun label removed (agreed earlier).
+- [x] Orbit paths: opacity 0.22 → 0.11 — new colors at old darkness.
+- [x] Planet fidelity: 72×48 spheres (was 40×28), moons 24×16, texture anisotropy
+      up to 8×.
+- [x] Calmer motion: system spin halved (0.012→0.006 rad/s), slower self-rotation /
+      cloud drift / moons, twinkle 1.6 Hz → 0.35 Hz and subtler, hover pop
+      1.22 → 1.07 with softer lerp.
+
 **P2 — Cinematic scroll journey**
 - [ ] Scroll = camera flight: each section arrives at its planet, which rotates into frame
       behind its text; eased keyframe camera path; reduced-motion keeps the static frame.
@@ -80,4 +100,6 @@ section accents, not from recolored planets.
 | 2026-10-03 | M1 v4 CI deploy + live verification (commit `7f2b4eb`) | ✅ green — all runs ✓; live root (cache-busted) serves `assets/index-DqU0yG2w.js` (HTTP 200) containing v4 content (system-01 / Generated Songs markers); lazy chunk `OrreryBackground-wSkMrdwY.js` live at HTTP 200, 539,573 bytes (exact match with local dist). `/#/v4` fully served from production. **Awaiting owner pick among v1–v4.** |
 | 2026-10-03 | Explorer live-link fix (owner question in v4 review) | ✅ green — discovered the explorer has been **live via ChatGPT Sites since V1.1** (repo README; URL verified HTTP 200); v1–v3 cards + v4 moon spec now link the live demo instead of the GitHub repo. AGENT.md content inventory + M2 note updated (Pages-deploy plan obsolete). Owner leaning **v4 as the direction**; graphics upgrade + planet-nav discoverability + vision menu under discussion. |
 | 2026-10-03 | v4 nav-bug fix + v4 dev plan (owner picked v4) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk unchanged 539.6 kB / 135.4 kB gzip). Root cause of dead planet nav: DOM-labels overlay above the canvas lacked `pointer-events-none` → fixed in OrreryBackground. Owner picked the v4 direction; dev plan (P0 fixes → P1 HQ real textures → P2 cinematic scroll → P3 fly-to/moon landings → P4 comet/HUD) added above; AGENT.md updated (direction, textures decision lean, GLM repo state). |
+| 2026-10-03 | v4 P1.1 calibration — local gate | ✅ green — 0 TS errors · 3/3 tests · build OK. Main bundle 310.46 kB / **100.15 kB gzip unchanged**; orrery chunk 570.9 kB / 144.1 kB gzip (+2.4 kB for the 3D-simplex sun + higher tessellation). Tuning driven by the owner's A/B compare page (`design/`, gitignored): keep new stars (a bit brighter) + new orbit colors at old darkness + real-texture planets; fix light wash, giant glow ball, cheap sun, twitchy motion. Sun label removed. |
+| 2026-10-03 | v4 P1.1 CI deploy (run for `440679d`) + live verification | ✅ green — live root (cache-busted) serves `index-BroVYufH.js` (310,603 B) which references `OrreryBackground-LfZ8k9zU.js`; that chunk live at HTTP 200, 570,894 bytes = exact local dist match. P1.1 live on `/#/v4`. Awaiting owner re-review + the still-pending P0 smoke test. |
 
