@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
 import { contentPlanets, system } from './orrery/system';
-import type { BodySpec, MoonSpec } from './orrery/system';
+import type { BodySpec, MoonDetail, MoonSpec } from './orrery/system';
 
 const OrreryBackground = lazy(() => import('./orrery/OrreryBackground'));
 
@@ -190,6 +190,63 @@ type Panel =
 
 const marqueeUnit = [...contentPlanets, ...contentPlanets];
 
+// P2.8 long-form moon micropage — when a MoonSpec carries `detail`, the panel
+// grows from a stub into a real project page: serif tagline, body copy, tech
+// chips, a fact card and a blueprint-style exhibit on a light card.
+function MoonProject({ spec, detail }: { spec: BodySpec; detail: MoonDetail }) {
+  return (
+    <div className="mt-5">
+      <p className="font-serif text-lg italic leading-snug" style={{ color: spec.color }}>
+        {detail.tagline}
+      </p>
+      <div className="mt-4 space-y-4">
+        {detail.paragraphs.map((p, i) => (
+          <p key={i} className="text-sm leading-relaxed text-[#aab2c8]">
+            {p}
+          </p>
+        ))}
+      </div>
+      {detail.tech && detail.tech.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2">
+          {detail.tech.map((t) => (
+            <span
+              key={t}
+              className="rounded-full border border-white/15 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-[#8f99b3]"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
+      {detail.facts && detail.facts.length > 0 && (
+        <dl className="mt-6 divide-y divide-white/10 rounded-xl border border-white/10 bg-white/[0.03]">
+          {detail.facts.map(([k, v]) => (
+            <div key={k} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:gap-4">
+              <dt className="w-28 shrink-0 font-mono text-[10px] uppercase tracking-[0.2em] text-[#7c86a5]">
+                {k}
+              </dt>
+              <dd className="text-xs leading-relaxed text-[#c6cde0]">{v}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {detail.exhibit && (
+        <figure className="mt-6">
+          <img
+            src={detail.exhibit.src}
+            alt={detail.exhibit.alt}
+            loading="lazy"
+            className="w-full rounded-xl border border-white/10"
+          />
+          <figcaption className="mt-2 font-mono text-[9px] uppercase tracking-[0.2em] text-[#5d6784]">
+            {detail.exhibit.caption}
+          </figcaption>
+        </figure>
+      )}
+    </div>
+  );
+}
+
 function Micropage({
   panel,
   onClose,
@@ -322,7 +379,11 @@ function Micropage({
               >
                 {panel.moon.status}
               </span>
-              <p className="mt-4 text-sm leading-relaxed text-[#aab2c8]">{panel.moon.note}</p>
+              {panel.moon.detail ? (
+                <MoonProject spec={spec} detail={panel.moon.detail} />
+              ) : (
+                <p className="mt-4 text-sm leading-relaxed text-[#aab2c8]">{panel.moon.note}</p>
+              )}
               {panel.moon.href && (
                 <a
                   href={panel.moon.href}
@@ -333,6 +394,21 @@ function Micropage({
                 >
                   open project ↗
                 </a>
+              )}
+              {panel.moon.detail?.links && panel.moon.detail.links.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {panel.moon.detail.links.map((l) => (
+                    <a
+                      key={l.href}
+                      href={l.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[#aab2c8] transition-colors hover:border-white/30 hover:text-white"
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
               )}
               <button
                 type="button"

@@ -44,11 +44,31 @@ export type MoonKey =
   | 'oberon'
   | 'triton';
 
+/** P2.8 long-form micropage content — when a MoonSpec carries `detail`, the
+ *  moon panel grows from a stub into a real project page. First carried by
+ *  The Roast Desk (make orbit, Mimas). */
+export type MoonDetail = {
+  /** serif accent line under the status chip — replaces the short note */
+  tagline: string;
+  /** body copy, top to bottom */
+  paragraphs: string[];
+  /** tech chips under the body copy */
+  tech?: string[];
+  /** label → value rows in the fact card */
+  facts?: ReadonlyArray<readonly [string, string]>;
+  /** blueprint exhibit — a public/ URL, fetched only when the panel opens */
+  exhibit?: { src: string; alt: string; caption: string };
+  /** secondary links under the primary project link */
+  links?: ReadonlyArray<{ label: string; href: string }>;
+};
+
 export type MoonSpec = {
   name: string;
   note: string;
   status: 'LIVE' | 'CASE STUDY' | 'FORMING';
   href?: string;
+  /** long-form micropage content — see MoonDetail */
+  detail?: MoonDetail;
   /** the real moon this project rides — its surface map and its slot in the
    *  planet's real moon order (P2.7: no invented moons, no invented orbits) */
   surface?: MoonKey;
@@ -247,16 +267,49 @@ export const system = {
       qualifier: 'make.com systems',
       color: '#fbbf24',
       blurb:
-        'Make.com systems that quietly move data between tools so people don’t have to. Seven real Saturnian moons — room for every pipeline. The first two automations ride Mimas and Enceladus.',
+        'Make.com systems that quietly move data, interpret intent and remember context so people don’t have to. Seven real Saturnian moons, room for every pipeline — The Roast Desk rides Mimas, the support-desk study rides Enceladus.',
       moons: [
         {
-          name: 'Joke Generator',
-          note: 'On-demand joke machine delivering punchlines through Telegram.',
+          // the real project: github.com/gabortardos/roast-desk-ai-automation —
+          // the joke generator that grew a full multi-stage automation engine
+          name: 'The Roast Desk',
+          note: 'Telegram roast bot with a surprisingly thick automation engine — three AI stages, memory, telemetry.',
           status: 'CASE STUDY',
+          href: 'https://github.com/gabortardos/roast-desk-ai-automation',
           surface: 'mimas',
           size: 0.05,
           dist: 2.6,
           speed: 0.19,
+          detail: {
+            tagline:
+              'A lighthearted Telegram roast bot with a surprisingly thick automation engine behind it.',
+            paragraphs: [
+              'The Roast Desk began as a deliberately tiny experiment: user → AI → joke. Real usage refused to keep it small. People asked for another one — a different target, a different language, a darker angle — and the bot had to remember, interpret and stop repeating itself.',
+              'Every message now runs a three-stage pipeline. An intent interpreter (o4-mini) decides whether this is comedy at all and extracts target, language, style and angle. A writer (GPT-4.1) drafts several candidates instead of one. A final editor reviews the set, sharpens the winner and checks it against the previous joke — so follow-ups like “again, but darker” just work.',
+              'Around the AI sits deterministic Make.com logic: routing, counters, three data stores, a JokeLog with full metadata, a UsageLog that records models and tokens per stage, and an admin branch answering /stats and /credits straight in Telegram. AI interprets and generates; the workflow does everything it can do reliably.',
+              'That separation is the real takeaway — the Input → Interpret → Context → Generate → Quality-Control → Respond → Remember → Measure loop generalizes far beyond jokes. The repo carries the sanitized Make blueprint, module-by-module architecture docs and a living roadmap up to an autonomous satire desk.',
+            ],
+            tech: ['Telegram Bot', 'Make.com', 'OpenAI o4-mini', 'GPT-4.1', 'Data Stores ×3'],
+            facts: [
+              ['interface', 'Telegram bot — conversational follow-ups'],
+              ['orchestration', 'one Make.com scenario, user + admin branches'],
+              ['ai pipeline', 'Intent Interpreter → Writer → Final Editor'],
+              ['memory', 'per-chat context — target, language, angle, joke count'],
+              ['logging', 'JokeLog + UsageLog — models & tokens per stage'],
+              ['admin', '/stats · /credits — AI-summarized in Telegram'],
+            ],
+            exhibit: {
+              src: '/projects/roast-desk/scenario.svg',
+              alt: 'The Roast Desk Make.com scenario map — Telegram trigger, routing, three AI stages, logging and admin statistics branches',
+              caption: 'the working scenario, reconstructed — module numbers as confirmed in Make',
+            },
+            links: [
+              {
+                label: 'make blueprint ↗',
+                href: 'https://github.com/gabortardos/roast-desk-ai-automation/tree/main/make',
+              },
+            ],
+          },
         },
         {
           name: 'Support Automation',
