@@ -154,6 +154,30 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
       open-project link); moon labels fade in only near the parent planet;
       MoonCards without an href open the panel instead of doing nothing.
 
+**P2.7 — Real moon surfaces, moon-count-true mapping** ✅ 2026-10-04
+- [x] Per-moon real surface maps (18 × 512 px webp ≈ 365 kB, lazy-fetched
+      with the orrery chunk) from the owner's solar-system-explorer repo —
+      `moonSurfaceUrl: Record<MoonKey, string>` in textures.ts; `buildMoon`
+      loads each moon's own map and whites the material color on arrival
+      (maps are natural color — no albedo-tint multiply). Titan deliberately
+      keeps no map: an opaque haze ball in reality.
+- [x] Category→planet remap so every category rides a planet whose REAL
+      moon count fits its subprojects (owner rule; no invented moons):
+      songs→Mercury (moonless — flat category), podcasts→Mars
+      (Phobos/Deimos slots waiting for episodes), apps→Jupiter (4 Galileans
+      — DeutschMeister=Io, Solar System Explorer=Europa, Ganymede+Callisto
+      scenic until more ship), automations→Saturn (7 majors —
+      Jokes=Mimas, Support=Enceladus, Tethys/Dione/Rhea/Titan/Iapetus
+      scenic), art→Uranus (Miranda→Oberon on the 97.8° near-vertical
+      plane). Venus/Earth/Neptune scenic (Earth keeps the real Moon,
+      Neptune keeps retrograde Triton).
+- [x] Project moons ride REAL slots: `MoonSpec` grew
+      surface/size/dist/inc/speed — geometry comes straight from the spec,
+      the old formula spacing (moonBase + spin-derived speeds) is gone.
+- [x] Planet names removed from visitor-facing UI (owner: they don't
+      matter): section + panel kickers show `orbit NN · qualifier`, scenic
+      planets carry no sky label; only categories + real moon names remain.
+
 **P3 — Interaction depth**
 - [ ] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
 - [ ] Moon landing: clicking a project card zooms to that moon while the card stays readable.
@@ -194,4 +218,5 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 | 2026-10-03 | v4 P2.1 owner-review fixes — local gate + CI + live verification (`8696ff4`) | ✅ green — 0 TS errors · 3/3 tests · build OK (orrery chunk 574.8 kB; main bundle unchanged). CI ✓ incl. Pages deploy; live (cache-busted) `OrreryBackground-Bn38fedT.js` = 574,757 bytes = exact local match. Lit-side close-ups, drifting Earth clouds, orbit-ring fades on hover/zoom, sun-arc flights. |
 | 2026-10-03 | v4 P2.5 real solar system — local gate + CI + live verification (`8c09282`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 311.2 kB/100.4 gz unchanged; orrery chunk 578.0 kB; +5 texture assets ≈ +106 kB net, lazy). CI ✓ incl. Pages deploy; live (cache-busted) chunk byte-exact vs local. All 8 planets, real order, content on Mercury/Venus/Earth/Saturn/Neptune, Mars/Jupiter/Uranus scenic. |
 | 2026-10-04 | v4 P2.6 real moons + centered hero + micropages — local gate + CI + live verification (`07ceec0`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 320.1 kB; orrery chunk 579.4 kB; no new assets). CI ✓ incl. Pages deploy; live (cache-busted) `index-C0kf3ZYb.js` (320,143 B) + `OrreryBackground-Ccn6Bovs.js` (579,418 B) both byte-exact vs local. Headless-Chrome DOM probe: all 16 moon labels render, hero shift `translateX(-136px)` on header+hero at rest. |
+| 2026-10-04 | v4 P2.7 real moon surfaces + moon-count-true remap — local gate + CI + live verification (`6164025`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 320.9 kB; orrery chunk 585.25 kB = +5.8 kB code; +18 moon webp assets ≈ 365 kB lazy-fetched only with the orrery chunk). CI ✓ both runs incl. Pages deploy; live (cache-busted) `index-gKYQDxSG.js` (321,046 B) + `OrreryBackground-B5RZWhWr.js` (585,257 B) byte-exact vs local; `io-512-*.webp` live HTTP 200 (20,786 B). Headless DOM probes (dev + live): 5 category labels · 0 scenic planet labels · 20 moon labels · kickers planet-free (`orbit 01 · music · generated`…). |
 

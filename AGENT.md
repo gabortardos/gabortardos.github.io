@@ -281,6 +281,28 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   `--virtual-time-budget` DOM dumps starve rAF (labels appear unpositioned in
   the dump ≠ broken runtime; screenshot size + tsc/tests/build are the gate).
 
+### v4 P2.7 shipped (2026-10-04)
+- **Moon-count-true mapping (owner rule):** a category may only ride a planet
+  whose REAL moon count ≥ its subproject count; moonless planets (Mercury,
+  Venus) carry flat categories only. Current map: songs=Mercury ·
+  podcasts=Mars · apps=Jupiter · automations=Saturn (7 majors) · art=Uranus
+  (5, near-vertical plane); scenic = Venus/Earth/Neptune (Earth keeps the
+  Moon, Neptune keeps retrograde Triton). Owner will later supply real
+  micropage copy + project URLs and reorder projects — pure data edits in
+  system.ts.
+- **Per-moon textures:** `MoonKey` (system.ts) ↔ `moonSurfaceUrl` record
+  (textures.ts); `buildMoon` loads `moonSurfaceUrl[key]` and sets the material
+  color WHITE on arrival (maps are natural color — never multiply the old
+  albedo tint). Titan has NO map by design (opaque haze). Project moons carry
+  their slot geometry (surface/size/dist/inc/speed) directly in `MoonSpec` —
+  the shared `moonMats` swap and `moonSurfaceMap` export are removed.
+- **Visitor-facing planet names are GONE (owner: planet names don't matter):**
+  kickers = `orbit NN · qualifier`, scenic planets have NO sky label; content
+  planets are labeled with their CATEGORY. Real moon names stay — they are the
+  story. `Planet.label` is `HTMLElement | null` so missing labels are safe.
+- **Ops:** heredocs (`cat > file << 'EOF'`) also get mangled by this shell —
+  create commit-message files with the editor tool, then `git commit -F`.
+
 ## Resume protocol for a new agent session
 
 
