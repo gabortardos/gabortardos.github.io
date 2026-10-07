@@ -17,6 +17,24 @@ import moonUrl from './assets/moon-1024.webp';
 import earthCloudsUrl from './assets/earth-clouds.webp';
 import earthNightUrl from './assets/earth-night.webp';
 import saturnRingUrl from './assets/saturn-ring-alpha.png';
+import ioUrl from './assets/io-512.webp';
+import europaUrl from './assets/europa-512.webp';
+import ganymedeUrl from './assets/ganymede-512.webp';
+import callistoUrl from './assets/callisto-512.webp';
+import phobosUrl from './assets/phobos-512.webp';
+import deimosUrl from './assets/deimos-512.webp';
+import mimasUrl from './assets/mimas-512.webp';
+import enceladusUrl from './assets/enceladus-512.webp';
+import tethysUrl from './assets/tethys-512.webp';
+import dioneUrl from './assets/dione-512.webp';
+import rheaUrl from './assets/rhea-512.webp';
+import iapetusUrl from './assets/iapetus-512.webp';
+import mirandaUrl from './assets/miranda-512.webp';
+import arielUrl from './assets/ariel-512.webp';
+import umbrielUrl from './assets/umbriel-512.webp';
+import titaniaUrl from './assets/titania-512.webp';
+import oberonUrl from './assets/oberon-512.webp';
+import tritonUrl from './assets/triton-512.webp';
 
 /** the real surface each planet wears — identity stays in rings/labels */
 export const surfaceUrl: Record<PlanetKey, string> = {
@@ -30,8 +48,33 @@ export const surfaceUrl: Record<PlanetKey, string> = {
   neptune: neptuneUrl,
 };
 
-/** shared surface for every moon — project moons and scenic real moons alike */
-export const moonSurfaceUrl = moonUrl;
+/**
+ * P2.7 real moon surfaces (owner 2026-10-04): every named moon wears its own
+ * real map from the explorer repo. Titan deliberately has NO map — its surface
+ * is opaque orange haze in reality, so it stays a featureless tinted sphere.
+ */
+export const moonSurfaceUrl: Record<string, string> = {
+  moon: moonUrl,
+  phobos: phobosUrl,
+  deimos: deimosUrl,
+  io: ioUrl,
+  europa: europaUrl,
+  ganymede: ganymedeUrl,
+  callisto: callistoUrl,
+  mimas: mimasUrl,
+  enceladus: enceladusUrl,
+  tethys: tethysUrl,
+  dione: dioneUrl,
+  rhea: rheaUrl,
+  iapetus: iapetusUrl,
+  miranda: mirandaUrl,
+  ariel: arielUrl,
+  umbriel: umbrielUrl,
+  titania: titaniaUrl,
+  oberon: oberonUrl,
+  triton: tritonUrl,
+};
+
 export const earthCloudsMap = earthCloudsUrl;
 export const earthNightMap = earthNightUrl;
 export const saturnRingMap = saturnRingUrl;

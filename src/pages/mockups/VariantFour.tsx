@@ -157,7 +157,7 @@ function OrbitSection({
     <section id={spec.id} className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
       <div className="pointer-events-auto max-w-2xl">
         <p className="font-mono text-xs uppercase tracking-[0.3em]" style={{ color: spec.color }}>
-          orbit {String(index + 1).padStart(2, '0')} · {spec.planet} · {spec.qualifier}
+          orbit {String(index + 1).padStart(2, '0')} · {spec.qualifier}
         </p>
         <h2 className="mt-4 font-display text-4xl font-bold tracking-tight text-[#f2f4fd] sm:text-6xl">
           {spec.name}
@@ -251,7 +251,7 @@ function Micropage({
             style={{ color: spec.color }}
           >
             {isPlanet
-              ? `orbit · ${spec.planet} · ${spec.qualifier}`
+              ? `orbit · ${spec.qualifier}`
               : `moon of ${spec.name} · ${spec.qualifier}`}
           </p>
           <button
@@ -519,9 +519,9 @@ export default function VariantFour() {
           <div className="mx-auto max-w-6xl">
             <p className="pointer-events-auto max-w-2xl font-mono text-[11px] leading-relaxed tracking-[0.04em] text-[#6f7a99]">
               ◦ engine note — this background is a stripped-down adaptation of the three.js engine
-              behind Solar System Explorer (see orbit 01). The full explorer ships to its own URL in
+              behind Solar System Explorer (see the Apps orbit). The full explorer ships to its own URL in
               a later milestone. prefers-reduced-motion renders a static frame instead.
-              planet imagery: NASA/JPL, via Solar System Explorer.
+              planet + moon imagery: NASA/JPL, via Solar System Explorer.
             </p>
             <div className="pointer-events-auto mt-6 flex flex-wrap items-center justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-[#7c86a5]">
               <span>© 2026 Gábor Tardos</span>

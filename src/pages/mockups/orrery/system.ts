@@ -2,12 +2,14 @@
 // three.js orrery (lazy chunk) are generated from. Deliberately free of three.js
 // imports so it can stay in the main bundle.
 //
-// Mapping (owner decision, 2026-10-03): the sky is the REAL solar system — all
-// eight planets, true order from the sun. Five carry Gábor's content (sun = the
-// maker, content planets = creation categories, project moons = projects); the
-// other three are scenic bodies that make the system read as itself. Each
-// category keeps one accent hue — the “own color design”: colorful because it
-// means something, not decoration.
+// Mapping (owner decision, 2026-10-04, P2.7): the sky MIRRORS the real solar
+// system — categories land only on planets whose real moons can host their
+// subprojects. Moonless Mercury carries the one flat category (songs); the
+// growing categories (apps, automations) get the many-moon giants Jupiter and
+// Saturn; the sun is the maker, planets are creation categories, and every
+// moon — project or scenic — is a REAL moon with its own real surface map.
+// Each category keeps one accent hue — the “own color design”: colorful
+// because it means something, not decoration.
 
 /** the real planet a body is — drives surface texture, axial tilt and spin */
 export type PlanetKey =
@@ -20,11 +22,44 @@ export type PlanetKey =
   | 'uranus'
   | 'neptune';
 
+/** real moons that have their own surface map (see textures.ts moonSurfaceUrl) */
+export type MoonKey =
+  | 'moon'
+  | 'phobos'
+  | 'deimos'
+  | 'io'
+  | 'europa'
+  | 'ganymede'
+  | 'callisto'
+  | 'mimas'
+  | 'enceladus'
+  | 'tethys'
+  | 'dione'
+  | 'rhea'
+  | 'iapetus'
+  | 'miranda'
+  | 'ariel'
+  | 'umbriel'
+  | 'titania'
+  | 'oberon'
+  | 'triton';
+
 export type MoonSpec = {
   name: string;
   note: string;
   status: 'LIVE' | 'CASE STUDY' | 'FORMING';
   href?: string;
+  /** the real moon this project rides — its surface map and its slot in the
+   *  planet's real moon order (P2.7: no invented moons, no invented orbits) */
+  surface?: MoonKey;
+  /** moon radius in scene units — the real moon's relative size */
+  size: number;
+  /** orbit radius as a multiple of the planet's radius — the real moon's slot */
+  dist: number;
+  /** extra inclination of the orbit plane (rad) */
+  inc?: number;
+  /** orbital angular speed (rad/s) — ordered like the real system */
+  speed: number;
 };
 
 /**
@@ -35,6 +70,9 @@ export type MoonSpec = {
  */
 export type SceneMoonSpec = {
   name: string;
+  /** the real moon's own surface map — omit for mapless bodies like Titan,
+   *  which is honestly featureless haze in reality */
+  surface?: MoonKey;
   /** moon radius in scene units — real relative order, compressed to stay visible */
   size: number;
   /** orbit radius as a multiple of the planet's radius — real order preserved */
@@ -87,26 +125,13 @@ export const system = {
   },
   planets: [
     {
-      id: 'apps',
-      name: 'Apps',
-      qualifier: 'shipped software',
-      color: '#34d399',
+      id: 'songs',
+      name: 'Generated Songs',
+      qualifier: 'music · generated',
+      color: '#22d3ee',
       blurb:
-        'Working software, built end to end with AI as the co-pilot. Every moon in this orbit is live — click one to open it. The engine painting the sky behind these words came from here.',
-      moons: [
-        {
-          name: 'DeutschMeister',
-          note: 'AI-enhanced personal German tutor — practice, feedback, progress tracking.',
-          status: 'LIVE',
-          href: 'https://gabortardos.github.io/deutschmeister/',
-        },
-        {
-          name: 'Solar System Explorer',
-          note: 'Interactive 3D solar system for training, teaching and fun. Its engine is the sky behind this page.',
-          status: 'LIVE',
-          href: 'https://solar-system-explorer-gabor.gabortardos.chatgpt.site',
-        },
-      ],
+        'Fully generated tracks — lyrics, vocals, arrangement — written with AI about the things this system orbits. Mercury flies alone: no moons, just the music. A dedicated microsite is coming. Headphones recommended.',
+      moons: [],
       planet: 'mercury',
       orbit: 5.0,
       size: 0.42,
@@ -114,44 +139,34 @@ export const system = {
       tilt: 0.1,
     },
     {
-      id: 'make',
-      name: 'Automations',
-      qualifier: 'make.com systems',
-      color: '#fbbf24',
-      blurb:
-        'Make.com systems that quietly move data between tools so people don’t have to. Two moons so far: a customer-support pipeline modeled on a real EV-charging operation, and a Telegram joke generator.',
-      moons: [
-        {
-          name: 'Joke Generator',
-          note: 'On-demand joke machine delivering punchlines through Telegram.',
-          status: 'CASE STUDY',
-        },
-        {
-          name: 'Support Automation',
-          note: 'Customer-support system modeled on a real EV-charging operation.',
-          status: 'CASE STUDY',
-        },
-      ],
+      id: 'venus',
+      name: 'Venus',
+      qualifier: 'scenic body',
+      color: '#e8c9a0',
+      blurb: 'Scenic planet — Venus has no moons in reality.',
+      moons: [],
       planet: 'venus',
+      scenic: true,
       orbit: 6.3,
       size: 0.68,
       speed: 0.14,
       tilt: -0.07,
     },
     {
-      id: 'podcasts',
-      name: 'AI Podcasts',
-      qualifier: 'audio · conversations',
-      color: '#a78bfa',
-      blurb:
-        'Conversations between me and AI voices — researched, scripted and produced with the same tools they talk about. First episodes are in production.',
+      id: 'earth',
+      name: 'Earth',
+      qualifier: 'scenic body',
+      color: '#60a5fa',
+      blurb: 'Scenic planet — home, with the one real Moon.',
       moons: [],
       planet: 'earth',
+      scenic: true,
       // the real Moon — NOT an equatorial satellite: it orbits ~5.1° off the
       // ecliptic (and far out — 3.4 planet radii here, compressed from 60)
       sceneMoons: [
         {
           name: 'Moon',
+          surface: 'moon',
           size: 0.13,
           dist: 3.4,
           inc: 0.089, // 5.1° to the ecliptic — the real value
@@ -166,19 +181,19 @@ export const system = {
       tilt: 0.14,
     },
     {
-      id: 'mars',
-      name: 'Mars',
-      qualifier: 'scenic body',
-      color: '#d97e50',
-      blurb: 'Scenic planet — no content in orbit yet.',
+      id: 'podcasts',
+      name: 'AI Podcasts',
+      qualifier: 'audio · conversations',
+      color: '#a78bfa',
+      blurb:
+        'Conversations between me and AI voices — researched, scripted and produced with the same tools they talk about. First episodes are in production — two real moon slots, Phobos and Deimos, are waiting for them.',
       moons: [],
       planet: 'mars',
-      scenic: true,
       // Phobos + Deimos — tiny, dark, near-equatorial; Phobos is the fastest
       // moon in the real solar system and orbits closer than any other
       sceneMoons: [
-        { name: 'Phobos', size: 0.045, dist: 1.9, inc: 0.017, tint: '#6f665c', speed: 0.38 },
-        { name: 'Deimos', size: 0.035, dist: 2.7, inc: 0.033, tint: '#7a7065', speed: 0.27 },
+        { name: 'Phobos', surface: 'phobos', size: 0.045, dist: 1.9, inc: 0.017, tint: '#6f665c', speed: 0.38 },
+        { name: 'Deimos', surface: 'deimos', size: 0.035, dist: 2.7, inc: 0.033, tint: '#7a7065', speed: 0.27 },
       ],
       orbit: 9.2,
       size: 0.5,
@@ -186,22 +201,40 @@ export const system = {
       tilt: 0.11,
     },
     {
-      id: 'jupiter',
-      name: 'Jupiter',
-      qualifier: 'scenic body',
-      color: '#d9a066',
-      blurb: 'Scenic planet — the system’s showpiece.',
-      moons: [],
+      id: 'apps',
+      name: 'Apps',
+      qualifier: 'shipped software',
+      color: '#34d399',
+      blurb:
+        'Working software, built end to end with AI as the co-pilot — on the biggest planet, with the most room to grow. Every moon in this orbit is live: click one to open it. The engine painting the sky behind these words came from here.',
+      moons: [
+        {
+          name: 'DeutschMeister',
+          note: 'AI-enhanced personal German tutor — practice, feedback, progress tracking.',
+          status: 'LIVE',
+          href: 'https://gabortardos.github.io/deutschmeister/',
+          surface: 'io',
+          size: 0.115,
+          dist: 1.85,
+          speed: 0.22,
+        },
+        {
+          name: 'Solar System Explorer',
+          note: 'Interactive 3D solar system for training, teaching and fun. Its engine is the sky behind this page.',
+          status: 'LIVE',
+          href: 'https://solar-system-explorer-gabor.gabortardos.chatgpt.site',
+          surface: 'europa',
+          size: 0.105,
+          dist: 2.25,
+          speed: 0.17,
+        },
+      ],
       planet: 'jupiter',
-      scenic: true,
-      // the four Galileans — real order (Io inner → Callisto outer), real size
-      // order (Ganymede > Callisto > Io > Europa), real albedo tints:
-      // sulfur Io, ice Europa, gray-brown Ganymede, dark Callisto
+      // the four Galileans in real order (Io inner → Callisto outer); the first
+      // two slots carry live apps, the outer pair stay scenic until more ship
       sceneMoons: [
-        { name: 'Io', size: 0.115, dist: 1.85, tint: '#d8c06d', speed: 0.22 },
-        { name: 'Europa', size: 0.105, dist: 2.25, tint: '#cfd4d9', speed: 0.17 },
-        { name: 'Ganymede', size: 0.14, dist: 2.85, tint: '#a09280', speed: 0.13 },
-        { name: 'Callisto', size: 0.13, dist: 3.6, tint: '#786c5e', speed: 0.1 },
+        { name: 'Ganymede', surface: 'ganymede', size: 0.14, dist: 2.85, tint: '#a09280', speed: 0.13 },
+        { name: 'Callisto', surface: 'callisto', size: 0.13, dist: 3.6, tint: '#786c5e', speed: 0.1 },
       ],
       orbit: 11.3,
       size: 1.05,
@@ -209,19 +242,41 @@ export const system = {
       tilt: -0.05,
     },
     {
-      id: 'art',
-      name: 'AI Art',
-      qualifier: 'visual experiments',
-      color: '#f472b6',
+      id: 'make',
+      name: 'Automations',
+      qualifier: 'make.com systems',
+      color: '#fbbf24',
       blurb:
-        'Images generated, curated and iterated with AI — prompts as brushes, models as paint. The gallery wing of the system opens in a later milestone.',
-      moons: [],
+        'Make.com systems that quietly move data between tools so people don’t have to. Seven real Saturnian moons — room for every pipeline. The first two automations ride Mimas and Enceladus.',
+      moons: [
+        {
+          name: 'Joke Generator',
+          note: 'On-demand joke machine delivering punchlines through Telegram.',
+          status: 'CASE STUDY',
+          surface: 'mimas',
+          size: 0.05,
+          dist: 2.6,
+          speed: 0.19,
+        },
+        {
+          name: 'Support Automation',
+          note: 'Customer-support system modeled on a real EV-charging operation.',
+          status: 'CASE STUDY',
+          surface: 'enceladus',
+          size: 0.055,
+          dist: 2.75,
+          speed: 0.17,
+        },
+      ],
       planet: 'saturn',
-      // Prometheus + Pandora — the shepherd pair herding the F ring, just
-      // outside the main rings (real configuration)
+      // the real major moons (inner → outer), just outside the ring band;
+      // Titan wears no map — in reality it is an opaque, hazy orange ball
       sceneMoons: [
-        { name: 'Prometheus', size: 0.05, dist: 2.6, tint: '#a89c90', speed: 0.19 },
-        { name: 'Pandora', size: 0.048, dist: 2.75, tint: '#9c9186', speed: 0.17 },
+        { name: 'Tethys', surface: 'tethys', size: 0.06, dist: 3.0, tint: '#b8b2a8', speed: 0.15 },
+        { name: 'Dione', surface: 'dione', size: 0.06, dist: 3.25, tint: '#b5aea6', speed: 0.13 },
+        { name: 'Rhea', surface: 'rhea', size: 0.07, dist: 3.55, tint: '#b8b4ae', speed: 0.11 },
+        { name: 'Titan', size: 0.16, dist: 4.0, tint: '#c8956c', speed: 0.085 },
+        { name: 'Iapetus', surface: 'iapetus', size: 0.065, dist: 4.5, tint: '#8d8579', speed: 0.06 },
       ],
       orbit: 14.5,
       size: 0.92,
@@ -229,20 +284,23 @@ export const system = {
       tilt: -0.12,
     },
     {
-      id: 'uranus',
-      name: 'Uranus',
-      qualifier: 'scenic body',
-      color: '#7dd3fc',
-      blurb: 'Scenic planet — rolls on its side.',
+      id: 'art',
+      name: 'AI Art',
+      qualifier: 'visual experiments',
+      color: '#f472b6',
+      blurb:
+        'Images generated, curated and iterated with AI — prompts as brushes, models as paint. The gallery wing opens on the sideways planet: five real moons riding Uranus’s near-vertical plane.',
       moons: [],
       planet: 'uranus',
-      scenic: true,
-      // Titania + Oberon — they ride Uranus's 97.8°-tilted equator, so their
-      // orbits stand near-VERTICAL to the ecliptic: the “not always horizontal”
-      // case, exactly as in reality
+      // Miranda → Oberon (real order); they ride Uranus's 97.8°-tilted
+      // equator, so their orbits stand near-VERTICAL to the ecliptic — the
+      // “not always horizontal” case, exactly as in reality
       sceneMoons: [
-        { name: 'Titania', size: 0.085, dist: 2.3, tint: '#8a837e', speed: 0.14 },
-        { name: 'Oberon', size: 0.08, dist: 2.85, tint: '#7d746f', speed: 0.11 },
+        { name: 'Miranda', surface: 'miranda', size: 0.045, dist: 1.9, tint: '#9a9490', speed: 0.185 },
+        { name: 'Ariel', surface: 'ariel', size: 0.07, dist: 2.2, tint: '#a8a29c', speed: 0.165 },
+        { name: 'Umbriel', surface: 'umbriel', size: 0.065, dist: 2.5, tint: '#7d7772', speed: 0.145 },
+        { name: 'Titania', surface: 'titania', size: 0.085, dist: 2.95, tint: '#8a837e', speed: 0.125 },
+        { name: 'Oberon', surface: 'oberon', size: 0.08, dist: 3.4, tint: '#7d746f', speed: 0.105 },
       ],
       orbit: 16.8,
       size: 0.72,
@@ -250,20 +308,21 @@ export const system = {
       tilt: 0.09,
     },
     {
-      id: 'songs',
-      name: 'Generated Songs',
-      qualifier: 'music · generated',
-      color: '#22d3ee',
-      blurb:
-        'Fully generated tracks — lyrics, vocals, arrangement — written with AI about the things this system orbits. Headphones recommended.',
+      id: 'neptune',
+      name: 'Neptune',
+      qualifier: 'scenic body',
+      color: '#8b9dff',
+      blurb: 'Scenic planet — the system’s far shore.',
       moons: [],
       planet: 'neptune',
+      scenic: true,
       // Triton — the famous rebel: a captured Kuiper-belt object orbiting
       // RETROGRADE on a plane tipped well off both Neptune's equator and the
       // ecliptic. It orbits backwards; watch it cross against the flow.
       sceneMoons: [
         {
           name: 'Triton',
+          surface: 'triton',
           size: 0.12,
           dist: 2.8,
           inc: 0.4, // ≈23° off the ecliptic (real ≈130° retrograde — compressed to read)

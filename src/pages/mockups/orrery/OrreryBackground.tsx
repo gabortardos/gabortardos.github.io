@@ -51,11 +51,16 @@ export default function OrreryBackground({ onSelect }: Props) {
       />
       <div ref={hostRef} className="absolute inset-0" />
       <div ref={labelsRef} className="pointer-events-none absolute inset-0">
-        {system.planets.map((p) => (
-          <div key={p.id} data-id={p.id} className={labelClass}>
-            {p.name}
-          </div>
-        ))}
+        {/* P2.7: planet names are invisible to visitors — content planets are
+            labeled with their CATEGORY, scenic planets (Venus/Earth/Neptune)
+            carry no label at all. Only their real moons get names, up close. */}
+        {system.planets
+          .filter((p) => !p.scenic)
+          .map((p) => (
+            <div key={p.id} data-id={p.id} className={labelClass}>
+              {p.name}
+            </div>
+          ))}
         {/* project moons (`::m`) + scenic real moons (`::s`) — the micropage layer */}
         {system.planets
           .flatMap((p) => [

@@ -8,7 +8,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import type { BodySpec, PlanetKey } from './system';
+import type { BodySpec, MoonKey, PlanetKey } from './system';
 import {
   earthCloudsMap,
   earthNightMap,
@@ -317,16 +317,9 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       onDone(t);
     });
   };
-  const moonMats: THREE.MeshStandardMaterial[] = [];
-  loadSurface(moonSurfaceUrl, (t) => {
-    for (const m of moonMats) {
-      m.map = t;
-      // scenic real moons keep their albedo tint (Io's sulfur etc.); the shared
-      // lunar surface multiplies it — individual explorer maps can replace this
-      m.color.set((m.userData.tint as number | undefined) ?? 0xffffff);
-      m.needsUpdate = true;
-    }
-  });
+  // P2.7: every moon wears its OWN real surface — buildMoon loads it by
+  // MoonKey from textures.ts moonSurfaceUrl; mapless bodies (Titan — an
+  // opaque haze ball in reality) honestly keep their flat tint.
 
   const planets: Planet[] = specs.map((spec, index) => {
     const plane = new THREE.Group();
@@ -450,26 +443,41 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     // 2026-10-03): regular satellites orbit the planet's tilted equatorial plane
     // (holder); the real exceptions — Earth's Moon, captured Triton — orbit a
     // plane referenced to the ecliptic (eclipticHost), each with its own real
-    // extra inclination. Project moons stay evenly spaced on the equator.
+    // extra inclination. P2.7: project moons ride real moon slots with their
+    // own real surface maps.
     const eclipticHost = new THREE.Group();
     eclipticHost.position.set(spec.orbit, 0, 0);
     pivot.add(eclipticHost);
-    const moonBase = spec.planet === 'saturn' ? spec.size * 2.4 : spec.size + 0.3;
     const moons: Moon[] = [];
     const moonLabels: (HTMLElement | null)[] = [];
 
     const buildMoon = (
       host: THREE.Group,
       index: number,
-      opts: { size: number; dist: number; inc: number; speed: number; tint?: number; pickId?: string },
+      opts: {
+        size: number;
+        dist: number;
+        inc: number;
+        speed: number;
+        tint?: number;
+        surface?: MoonKey;
+        pickId?: string;
+      },
     ): void => {
       const moonPivot = new THREE.Group();
       moonPivot.rotation.y = index * Math.PI;
       moonPivot.rotation.x = opts.inc; // real extra inclination of the orbit plane
       host.add(moonPivot);
       const moonMat = new THREE.MeshStandardMaterial({ color: opts.tint ?? 0x9aa3b8, roughness: 0.95 });
-      moonMat.userData.tint = opts.tint;
-      moonMats.push(moonMat); // shared lunar surface swaps in for all moons at once
+      const url = opts.surface ? moonSurfaceUrl[opts.surface] : undefined;
+      if (url) {
+        // P2.7: this moon's own real map — the tint is just the pre-load stand-in
+        loadSurface(url, (t) => {
+          moonMat.map = t;
+          moonMat.color.set(0xffffff); // maps are natural color — no albedo tint on top
+          moonMat.needsUpdate = true;
+        });
+      }
       const moonMesh = new THREE.Mesh(new THREE.SphereGeometry(opts.size, 24, 16), moonMat);
       moonMesh.position.x = opts.dist;
       if (opts.pickId) moonMesh.userData.bodyId = opts.pickId; // pickable project moon
@@ -477,15 +485,15 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       moons.push({ pivot: moonPivot, mesh: moonMesh, speed: opts.speed });
     };
 
-    // project moons — calm banded speeds (the giants spin so fast the raw
-    // P1.2 formula would whirl their moons), capped into a Kepler-style range
-    const spin = SPIN[spec.planet];
-    spec.moons.forEach((_moon, i) => {
+    // project moons ride REAL moon slots — their own surface maps, sizes,
+    // distances and speeds straight from the spec (P2.7: no invented orbits)
+    spec.moons.forEach((moon, i) => {
       buildMoon(holder, i, {
-        size: 0.09,
-        dist: moonBase + i * 0.24,
-        inc: 0,
-        speed: Math.max(0.08, Math.min(spin * (0.9 - i * 0.15), 0.16 - i * 0.02)),
+        size: moon.size,
+        dist: spec.size * moon.dist,
+        inc: moon.inc ?? 0,
+        speed: moon.speed,
+        surface: moon.surface,
         pickId: `${spec.id}::m${i}`,
       });
       moonLabels.push(labelsHost.querySelector(`[data-id="${spec.id}::m${i}"]`));
@@ -497,6 +505,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
         dist: spec.size * moon.dist,
         inc: moon.inc ?? 0,
         speed: moon.retro ? -moon.speed : moon.speed,
+        surface: moon.surface,
         tint: moon.tint ? new THREE.Color(moon.tint).getHex() : undefined,
       });
       moonLabels.push(labelsHost.querySelector(`[data-id="${spec.id}::s${i}"]`));
