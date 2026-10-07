@@ -325,6 +325,40 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   only. Treat headless DOM probes as unavailable until re-tested; the gate
   is tsc/vitest/build + dist-bundle greps + live byte checks.
 
+### v4 P3 shipped (2026-10-08)
+- **Fly-to (P3.1):** VariantFour owns an eased programmatic scroll tween
+  (`flyTo`/`flyToSection`, 0.9–2.8 s, easeInOutCubic, rAF). The cinematic
+  camera rides it via the existing `camT` easing — no scene changes needed.
+  User scroll ALWAYS wins: wheel/touchmove/paging-key listeners cancel the
+  flight (programmatic `scrollTo` never fires those, so no flag needed).
+  Sections get a once-per-section `whileInView` reveal; reduced motion →
+  instant jump + no reveal.
+- **Moon landing (P3.2):** `OrreryApi = { focusMoon(id | null) }` is handed
+  out of `createOrrery` via `options.onReady` → threaded through
+  OrreryBackground's `onReady` prop → VariantFour's `orreryApi` ref. The
+  import in VariantFour is TYPE-ONLY (erased at build — verified: no
+  `three` strings in the main bundle). In the frame loop the camera blends
+  (smoothstep mix, dt×2.4) onto a live-tracked moon close-up recomputed
+  every frame: dist = `moon.size * 15 + 0.22`, sunward + above, look point
+  shifted left so the moon parks right of the micropage panel. Moon
+  clicks/cards open the panel WITHOUT page travel now; panel close,
+  "← all moons" (→ `select(planetId)`) and user scroll intent release the
+  focus and blend back to the scroll camera. Moon cards are ALWAYS
+  panel-openers — external repo links live inside the panel. Reduced
+  motion: focusMoon is a no-op, the panel alone carries it.
+- **Discoverability (P3.3):** one-time hint chip after ignition
+  (sessionStorage `gtrd-v4-sky-hint`, 6.5 s auto-dismiss or first travel,
+  `(pointer: coarse)` switches click→tap copy). Hover: hovered planet's
+  orbit ring brightens to 0.34 (it used to FADE — reversed on purpose),
+  planet swell 1.1, hovered project moon swells 1.5× + its sky label glows
+  (`moonRefById(raycastId)` maps `planetId::mN` → planet + index + label),
+  sun glow bumps on hover. Touch: 12 px tap slop (was 6 px for mouse).
+- **TS strict:** `noUncheckedIndexedAccess` — indexed access returns
+  `T | undefined`. Store the looked-up OBJECT (e.g. the `Moon` record), not
+  the index; re-indexing arrays later re-widens the type. Label arrays are
+  `(HTMLElement | null)[]` → indexed gives `| undefined` too; `?? null`
+  before passing to `setHot`.
+
 ## Resume protocol for a new agent session
 
 

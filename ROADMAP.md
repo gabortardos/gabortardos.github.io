@@ -197,10 +197,26 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 - [x] 3 new vitests (system.test.ts): Mimas slot + repo href, complete
       detail block, exhibit path integrity.
 
-**P3 — Interaction depth**
-- [ ] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
-- [ ] Moon landing: clicking a project card zooms to that moon while the card stays readable.
-- [ ] Nav discoverability: one-time hint after ignition, stronger hover states, touch support.
+**P3 — Interaction depth** (shipped 2026-10-08)
+- [x] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
+      Implemented as an eased 0.9–2.8 s programmatic scroll flight (rAF tween,
+      easeInOutCubic) — the cinematic camera rides it via camT; any user scroll
+      intent (wheel/touchmove/paging keys) cancels the flight. Sections reveal
+      once (whileInView) as the flight arrives. Reduced motion → instant jump,
+      no reveal animation.
+- [x] Moon landing: clicking a project card zooms to that moon while the card stays readable.
+      New imperative `OrreryApi.focusMoon(id)` from the scene chunk (threaded
+      through OrreryBackground's `onReady`; type-only import — three stays out
+      of main): the camera blends onto a LIVE-tracked close-up of the moon
+      (recomputed every frame as it orbits; parked sunward + above, framed
+      right of center beside the panel; the focused moon's sky label glows).
+      Moon cards no longer navigate away — repo links live inside the panel.
+      Panel close or any user scroll intent blends back to the scroll camera.
+- [x] Nav discoverability: one-time hint after ignition, stronger hover states, touch support.
+      One-time post-ignition hint chip (sessionStorage-guarded, tap-aware copy,
+      dies on first travel or 6.5 s); hovered orbit ring BRIGHTENS (used to
+      fade), planet hover swell 1.07→1.1, hovered project moon swells 1.5× +
+      its sky label glows, sun glow bump on hover; 12 px touch tap slop.
 
 **P4 — Story & wayfinding (pick per idea, optional)**
 - [ ] GLM comet easter egg crossing the system — tells the two-engines story, elegantly
@@ -239,4 +255,5 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 | 2026-10-04 | v4 P2.6 real moons + centered hero + micropages — local gate + CI + live verification (`07ceec0`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 320.1 kB; orrery chunk 579.4 kB; no new assets). CI ✓ incl. Pages deploy; live (cache-busted) `index-C0kf3ZYb.js` (320,143 B) + `OrreryBackground-Ccn6Bovs.js` (579,418 B) both byte-exact vs local. Headless-Chrome DOM probe: all 16 moon labels render, hero shift `translateX(-136px)` on header+hero at rest. |
 | 2026-10-04 | v4 P2.7 real moon surfaces + moon-count-true remap — local gate + CI + live verification (`6164025`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 320.9 kB; orrery chunk 585.25 kB = +5.8 kB code; +18 moon webp assets ≈ 365 kB lazy-fetched only with the orrery chunk). CI ✓ both runs incl. Pages deploy; live (cache-busted) `index-gKYQDxSG.js` (321,046 B) + `OrreryBackground-B5RZWhWr.js` (585,257 B) byte-exact vs local; `io-512-*.webp` live HTTP 200 (20,786 B). Headless DOM probes (dev + live): 5 category labels · 0 scenic planet labels · 20 moon labels · kickers planet-free (`orbit 01 · music · generated`…). |
 | 2026-10-07 | v4 P2.8 The Roast Desk real micropage — local gate + CI + live verification (`226adb1`) | ✅ green — 0 TS errors · 6/6 tests (3 new) · build OK (main 325.1 kB = +4.2 kB copy + MoonProject; orrery chunk unchanged 585.25 kB; +1 public asset `scenario.svg` 8.1 kB, lazy on panel open). CI ✓ incl. Pages deploy; live (cache-busted) `index-DO-SkYP0.js` (325,322 B) byte-exact vs local and contains The Roast Desk data; `/projects/roast-desk/scenario.svg` live HTTP 200 (8,116 B). Headless DOM dumps executed no JS this session (see AGENT ops note) — verified via built-bundle greps + live byte checks instead. |
+| 2026-10-08 | v4 P3 interaction depth (fly-to + moon landing + hints) — local gate + CI + live verification (`ee1d120`) | ✅ green — 0 TS errors · 6/6 tests · build OK (main 327.3 kB = +2.0 kB flyTo/hint/reveal; orrery chunk 587.4 kB = +2.2 kB focus engine + hover states). CI ✓ incl. Pages deploy; live (cache-busted) `index-BVcXY515.js` (327,300 B) + `OrreryBackground-CTlgWl6m.js` (587,420 B) both byte-exact vs local, `focusMoon` present in the live chunk, no three.js leak into main (type-only import erased). Headless DOM still unavailable — bundle greps + live byte checks as before. |
 
