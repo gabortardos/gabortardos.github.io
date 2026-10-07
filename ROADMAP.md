@@ -178,6 +178,25 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
       matter): section + panel kickers show `orbit NN · qualifier`, scenic
       planets carry no sky label; only categories + real moon names remain.
 
+**P2.8 — The Roast Desk: first real project micropage** ✅ 2026-10-07
+- [x] Source of truth: the owner's roast-desk-ai-automation repo (analyzed:
+      README, architecture.md, public-blueprint.md, roadmap.md,
+      project-handoff.md) — the bot IS the old “Joke Generator” placeholder,
+      so it took over the Mimas slot instead of adding a moon.
+- [x] `MoonSpec.detail` (MoonDetail type): tagline, paragraphs, tech, facts,
+      exhibit, links — optional long-form micropage data. The `MoonProject`
+      component (VariantFour) renders it: serif accent tagline, body copy,
+      tech chips, fact card, light blueprint-exhibit card, secondary links.
+      Moons without `detail` render exactly as before.
+- [x] The Roast Desk data: real name (sky label + section card + panel),
+      repo href, 4 paragraphs (origin → 3-stage AI pipeline → deterministic
+      Make backbone → the reusable pattern), 5 tech chips, 6 fact rows,
+      exhibit = public/projects/roast-desk/scenario.svg (the repo's Make
+      scenario map, 8.1 kB, fetched only when the panel opens) + a
+      blueprint deep link. Make-orbit blurb now names both real riders.
+- [x] 3 new vitests (system.test.ts): Mimas slot + repo href, complete
+      detail block, exhibit path integrity.
+
 **P3 — Interaction depth**
 - [ ] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
 - [ ] Moon landing: clicking a project card zooms to that moon while the card stays readable.
@@ -219,4 +238,5 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 | 2026-10-03 | v4 P2.5 real solar system — local gate + CI + live verification (`8c09282`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 311.2 kB/100.4 gz unchanged; orrery chunk 578.0 kB; +5 texture assets ≈ +106 kB net, lazy). CI ✓ incl. Pages deploy; live (cache-busted) chunk byte-exact vs local. All 8 planets, real order, content on Mercury/Venus/Earth/Saturn/Neptune, Mars/Jupiter/Uranus scenic. |
 | 2026-10-04 | v4 P2.6 real moons + centered hero + micropages — local gate + CI + live verification (`07ceec0`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 320.1 kB; orrery chunk 579.4 kB; no new assets). CI ✓ incl. Pages deploy; live (cache-busted) `index-C0kf3ZYb.js` (320,143 B) + `OrreryBackground-Ccn6Bovs.js` (579,418 B) both byte-exact vs local. Headless-Chrome DOM probe: all 16 moon labels render, hero shift `translateX(-136px)` on header+hero at rest. |
 | 2026-10-04 | v4 P2.7 real moon surfaces + moon-count-true remap — local gate + CI + live verification (`6164025`) | ✅ green — 0 TS errors · 3/3 tests · build OK (main 320.9 kB; orrery chunk 585.25 kB = +5.8 kB code; +18 moon webp assets ≈ 365 kB lazy-fetched only with the orrery chunk). CI ✓ both runs incl. Pages deploy; live (cache-busted) `index-gKYQDxSG.js` (321,046 B) + `OrreryBackground-B5RZWhWr.js` (585,257 B) byte-exact vs local; `io-512-*.webp` live HTTP 200 (20,786 B). Headless DOM probes (dev + live): 5 category labels · 0 scenic planet labels · 20 moon labels · kickers planet-free (`orbit 01 · music · generated`…). |
+| 2026-10-07 | v4 P2.8 The Roast Desk real micropage — local gate + CI + live verification (`226adb1`) | ✅ green — 0 TS errors · 6/6 tests (3 new) · build OK (main 325.1 kB = +4.2 kB copy + MoonProject; orrery chunk unchanged 585.25 kB; +1 public asset `scenario.svg` 8.1 kB, lazy on panel open). CI ✓ incl. Pages deploy; live (cache-busted) `index-DO-SkYP0.js` (325,322 B) byte-exact vs local and contains The Roast Desk data; `/projects/roast-desk/scenario.svg` live HTTP 200 (8,116 B). Headless DOM dumps executed no JS this session (see AGENT ops note) — verified via built-bundle greps + live byte checks instead. |
 

@@ -303,6 +303,28 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
 - **Ops:** heredocs (`cat > file << 'EOF'`) also get mangled by this shell —
   create commit-message files with the editor tool, then `git commit -F`.
 
+### v4 P2.8 shipped (2026-10-07)
+- **Long-form moon micropages:** `MoonSpec.detail?: MoonDetail` in system.ts
+  (tagline/paragraphs/tech/facts/exhibit/links) → `MoonProject` in
+  VariantFour renders it; an absent `detail` keeps the legacy one-liner
+  panel. Exhibits live in `public/projects/<project>/` — plain URLs, NOT
+  bundled (vite refuses imports from public/); fetched only on panel open.
+- **The Roast Desk (automations/Mimas)** is the real
+  github.com/gabortardos/roast-desk-ai-automation project — it replaced the
+  “Joke Generator” placeholder (the repo IS that bot, grown up). When the
+  owner supplies more project content, follow this pattern: data-only edits
+  in system.ts + asset folder + optional data-integrity tests. v1–v3 mockups
+  still say “Joke Generator” — pruned together with the mockups later.
+- **satisfies-inferred literal unions:** `system.planets` keeps narrow
+  literal types; widen in tests via `as BodySpec[]` (assignability is
+  already proven by `satisfies`) before touching optional nested fields
+  like `detail`. No `node:*` imports in tests — no @types/node in this
+  browser-only tsconfig.
+- **Ops:** this session headless Chrome (`--headless=new`, any budget or
+  `--timeout`, dev AND `vite preview`) executed no JS at all — shell dump
+  only. Treat headless DOM probes as unavailable until re-tested; the gate
+  is tsc/vitest/build + dist-bundle greps + live byte checks.
+
 ## Resume protocol for a new agent session
 
 
