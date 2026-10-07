@@ -1,8 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { createOrrery } from './scene';
+import type { OrreryApi } from './scene';
 import { system } from './system';
 
-type Props = { onSelect: (id: string) => void };
+type Props = {
+  onSelect: (id: string) => void;
+  /** P3.2 — receives the imperative moon-landing handle once the engine is up */
+  onReady?: (api: OrreryApi) => void;
+};
 
 const labelClass =
   'pointer-events-none absolute left-0 top-0 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 will-change-transform';
@@ -15,11 +20,13 @@ const moonLabelClass =
 // Lazy chunk wrapper: this module (and therefore `three`) only loads on /#/v4.
 // The canvas is created imperatively so React 18 StrictMode's double-effect in
 // dev never re-uses a disposed WebGL context.
-export default function OrreryBackground({ onSelect }: Props) {
+export default function OrreryBackground({ onSelect, onReady }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const labelsRef = useRef<HTMLDivElement>(null);
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
+  const readyRef = useRef(onReady);
+  readyRef.current = onReady;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -33,6 +40,7 @@ export default function OrreryBackground({ onSelect }: Props) {
       labelsHost: labels,
       specs: system.planets,
       onSelect: (id) => selectRef.current(id),
+      onReady: (api) => readyRef.current?.(api),
     });
     return () => {
       orrery?.dispose();

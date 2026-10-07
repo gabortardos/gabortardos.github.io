@@ -23,11 +23,17 @@ export type OrreryOptions = {
   labelsHost: HTMLElement;
   specs: BodySpec[];
   onSelect: (id: string) => void;
+  /** P3.2 — receives the imperative moon-landing handle once the engine is up */
+  onReady?: (api: OrreryApi) => void;
 };
 
 export type Orrery = { dispose: () => void };
 
-type Moon = { pivot: THREE.Group; mesh: THREE.Mesh; speed: number };
+/** P3.2 moon landing: park the camera on a live-tracked project moon (the
+ *  micropage panel slides in beside it); `null` blends back to the scroll camera. */
+export type OrreryApi = { focusMoon: (id: string | null) => void };
+
+type Moon = { pivot: THREE.Group; mesh: THREE.Mesh; speed: number; size: number };
 
 type Planet = {
   spec: BodySpec;
@@ -482,7 +488,7 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       moonMesh.position.x = opts.dist;
       if (opts.pickId) moonMesh.userData.bodyId = opts.pickId; // pickable project moon
       moonPivot.add(moonMesh);
-      moons.push({ pivot: moonPivot, mesh: moonMesh, speed: opts.speed });
+      moons.push({ pivot: moonPivot, mesh: moonMesh, speed: opts.speed, size: opts.size });
     };
 
     // project moons ride REAL moon slots — their own surface maps, sizes,
@@ -539,8 +545,57 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
 
   let hovered: Planet | null = null;
   let hoveredSun = false;
+  let hoveredMoonKey: string | null = null; // P3.3: hovered project moon → label glow + swell
   let downX = 0;
   let downY = 0;
+
+  // ---- P3.2: moon landing ----
+  // focusMoon(id) blends the camera onto a live-tracked close-up of a project
+  // moon (recomputed every frame — the moon keeps orbiting), parked sunward +
+  // above and framed right of center, because the micropage panel owns the
+  // left half. focusMoon(null) blends back to the scroll camera. The visitor's
+  // own scroll intent (wheel / touch / paging keys) always releases the focus.
+  let disposed = false;
+  let focusBody: Moon | null = null;
+  let focusPlanet: Planet | null = null;
+  let focusIdx = -1;
+  let focusMix = 0;
+  let focusGoal = 0;
+  let focusLabelHot = false;
+
+  const moonRefById = (id: string): { p: Planet; m: Moon; i: number } | null => {
+    const hit = /^([\w-]+)::m(\d+)$/.exec(id);
+    if (!hit) return null;
+    const p = planets.find((pl) => pl.spec.id === hit[1]);
+    const m = p?.moons[Number(hit[2])];
+    return p && m ? { p, m, i: Number(hit[2]) } : null;
+  };
+
+  const focusMoon = (id: string | null): void => {
+    if (disposed || reduced) return; // reduced: static frame — the panel alone carries it
+    if (id === null) {
+      focusGoal = 0;
+      return;
+    }
+    const ref = moonRefById(id);
+    if (!ref) return;
+    focusBody = ref.m;
+    focusPlanet = ref.p;
+    focusIdx = ref.i;
+    focusGoal = 1;
+  };
+
+  const onUserScrollIntent = (): void => {
+    if (focusGoal === 1) focusGoal = 0;
+  };
+  const onFocusKey = (e: KeyboardEvent): void => {
+    if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
+      onUserScrollIntent();
+    }
+  };
+  window.addEventListener('wheel', onUserScrollIntent, { passive: true });
+  window.addEventListener('touchmove', onUserScrollIntent, { passive: true });
+  window.addEventListener('keydown', onFocusKey, { passive: true });
 
   const setHot = (el: HTMLElement | null, color: string, hot: boolean): void => {
     if (!el) return;
@@ -567,7 +622,9 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     downY = e.clientY;
   };
   const onPointerUp = (e: PointerEvent): void => {
-    if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return;
+    // touch slop is fatter — a fat-finger scroll flick must not read as a travel tap
+    const slop = e.pointerType === 'touch' ? 12 : 6;
+    if (Math.hypot(e.clientX - downX, e.clientY - downY) > slop) return;
     toNdc(e.clientX, e.clientY);
     const id = pick();
     if (id) onSelect(id);
@@ -677,6 +734,8 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   let scrollProgress = 0;
   let camT = 0; // eased scrollProgress — flick-scrolls become buttery camera flights
   let baseZ = 36;
+  let glowHot = 0; // P3.3: eased sun-hover glow bump
+  let sunHovered = false; // set after each raycast — the glow reads it one frame later
 
   const onScroll = (): void => {
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -736,15 +795,51 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
 
     sunMesh.scale.setScalar(0.7 + 0.3 * ig);
     sunLight.intensity = 380 * ig;
-    glowMat.opacity = 0.5 * ig;
+    glowHot += ((sunHovered ? 1 : 0) - glowHot) * Math.min(1, dt * 6);
+    glowMat.opacity = (0.5 + 0.3 * glowHot) * ig;
 
     camT += (scrollProgress - camT) * Math.min(1, dt * 4.5);
     applyCamera(camT, ig);
 
+    // P3.2 moon landing — blend the scroll camera toward the tracked close-up.
+    // applyCamera left the scroll pose in camera.position and the look in vTmp.
+    focusMix += (focusGoal - focusMix) * Math.min(1, dt * 2.4);
+    if (focusGoal === 0 && focusMix < 0.02 && focusBody) {
+      focusMix = 0;
+      if (focusLabelHot) {
+        setHot(focusPlanet?.moonLabels[focusIdx] ?? null, focusPlanet?.spec.color ?? '', false);
+        focusLabelHot = false;
+      }
+      focusBody = null;
+      focusPlanet = null;
+      focusIdx = -1;
+    }
+    if (focusMix > 0.001 && focusBody && focusPlanet) {
+      vPosB.copy(camera.position); // scroll pose — the blend's origin
+      vLookB.copy(vTmp);
+      focusBody.mesh.getWorldPosition(vPosA); // the moon — live, it keeps orbiting
+      const mDist = focusBody.size * 15 + 0.22;
+      vTmp.copy(vPosA).setY(0).normalize(); // sunward — land on the lit side
+      vLookA.copy(vPosA).addScaledVector(vTmp, mDist * 0.82).addScaledVector(CAM_UP, mDist * 0.5);
+      vTmp.subVectors(vLookA, vPosA).normalize();
+      vRight.crossVectors(CAM_UP, vTmp).normalize();
+      // park the moon right of center — the micropage panel owns the left half
+      vPosA.addScaledVector(vRight, -mDist * (camera.aspect < 1.05 ? 0.08 : 0.3));
+      const fk = smoothstep(focusMix);
+      camera.position.lerpVectors(vPosB, vLookA, fk);
+      vLookB.lerp(vPosA, fk);
+      camera.lookAt(vLookB);
+      if (focusMix > 0.6 && !focusLabelHot) {
+        setHot(focusPlanet.moonLabels[focusIdx] ?? null, focusPlanet.spec.color, true);
+        focusLabelHot = true;
+      }
+    }
+
     const id = pick();
     const planet =
       id !== null && id !== 'sun' ? planets.find((p) => p.spec.id === id) ?? null : null;
-    const sunHot = id === 'sun';
+    sunHovered = id === 'sun';
+    const sunHot = sunHovered;
     const moonHot = id !== null && id.includes('::'); // hovering a project moon
     if (planet !== hovered || sunHot !== hoveredSun) {
       if (hovered) setHot(hovered.label, hovered.spec.color, false);
@@ -752,11 +847,29 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
       hovered = planet;
       hoveredSun = sunHot;
     }
+    // P3.3: the hovered project moon lights its own sky label (planet labels
+    // already glow on hover — now the project moons do too)
+    if (id !== hoveredMoonKey) {
+      if (hoveredMoonKey) {
+        const prev = moonRefById(hoveredMoonKey);
+        setHot(prev?.p.moonLabels[prev.i] ?? null, prev?.p.spec.color ?? '', false);
+      }
+      if (moonHot && id) {
+        const hot = moonRefById(id);
+        setHot(hot?.p.moonLabels[hot.i] ?? null, hot?.p.spec.color ?? '', true);
+      }
+      hoveredMoonKey = moonHot ? id : null;
+    }
     canvas.style.cursor = planet !== null || sunHot || moonHot ? 'pointer' : 'default';
     for (const p of planets) {
-      const target = p === hovered ? 1.07 : 1;
+      const target = p === hovered ? 1.1 : 1;
       p.scale += (target - p.scale) * Math.min(1, dt * 6);
       p.mesh.scale.setScalar(p.scale);
+      // P3.3: the hovered project moon swells like its planet does
+      p.moons.forEach((m, mi) => {
+        const mt = hoveredMoonKey === `${p.spec.id}::m${mi}` ? 1.5 : 1;
+        m.mesh.scale.setScalar(m.mesh.scale.x + (mt - m.mesh.scale.x) * Math.min(1, dt * 8));
+      });
     }
 
     // Orbit rings: wayfinding at a distance, invisible up close — fade the ring
@@ -765,7 +878,8 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     for (const p of planets) {
       p.mesh.getWorldPosition(vPosA);
       const close = vPosA.distanceTo(camera.position) < viewDistance(p) * 1.5;
-      const target = p === hovered || close ? 0.02 : 0.099;
+      // P3.3: the hovered ring BRIGHTENS (wayfinding feedback — it used to fade)
+      const target = p === hovered ? 0.34 : close ? 0.02 : 0.099;
       p.orbitMat.opacity += (target - p.orbitMat.opacity) * Math.min(1, dt * 4);
     }
 
@@ -828,9 +942,13 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
   else raf = requestAnimationFrame(frame);
 
   const dispose = (): void => {
+    disposed = true;
     running = false;
     cancelAnimationFrame(raf);
     window.clearTimeout(anchorsTimer);
+    window.removeEventListener('wheel', onUserScrollIntent);
+    window.removeEventListener('touchmove', onUserScrollIntent);
+    window.removeEventListener('keydown', onFocusKey);
     canvas.removeEventListener('pointermove', onPointerMove);
     canvas.removeEventListener('pointerdown', onPointerDown);
     canvas.removeEventListener('pointerup', onPointerUp);
@@ -850,6 +968,8 @@ export function createOrrery(options: OrreryOptions): Orrery | null {
     composer.dispose();
     renderer.dispose();
   };
+
+  options.onReady?.({ focusMoon });
 
   return { dispose };
 }

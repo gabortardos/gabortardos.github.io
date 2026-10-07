@@ -9,6 +9,8 @@ import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } fr
 import type { MotionValue } from 'framer-motion';
 import { contentPlanets, system } from './orrery/system';
 import type { BodySpec, MoonDetail, MoonSpec } from './orrery/system';
+// P3.2 — type-only import (erased at build): `three` still never enters the main bundle
+import type { OrreryApi } from './orrery/scene';
 
 const OrreryBackground = lazy(() => import('./orrery/OrreryBackground'));
 
@@ -105,11 +107,15 @@ function Ignition({ onDone }: { onDone: () => void }) {
 }
 
 function MoonCard({ moon, color, onOpen }: { moon: MoonSpec; color: string; onOpen: () => void }) {
-  const cls =
-    'group block rounded-xl border border-white/10 bg-[#070b18]/70 p-5 backdrop-blur transition-colors hover:border-[color:var(--ac)]';
-  const style = { '--ac': `${color}66` } as CSSProperties;
-  const inner = (
-    <>
+  // P3.2: every card lands the camera on its moon and opens the micropage —
+  // external project links live inside the panel, not on the card
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group block w-full cursor-pointer rounded-xl border border-white/10 bg-[#070b18]/70 p-5 text-left backdrop-blur transition-colors hover:border-[color:var(--ac)]"
+      style={{ '--ac': `${color}66` } as CSSProperties}
+    >
       <div className="flex flex-wrap items-center gap-3">
         <span
           aria-hidden
@@ -125,21 +131,9 @@ function MoonCard({ moon, color, onOpen }: { moon: MoonSpec; color: string; onOp
         </span>
       </div>
       <p className="mt-2 text-sm leading-relaxed text-[#9aa3b8]">{moon.note}</p>
-      {moon.href && (
-        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#7c86a5] transition-colors group-hover:text-white">
-          open ↗
-        </p>
-      )}
-    </>
-  );
-  return moon.href ? (
-    <a href={moon.href} target="_blank" rel="noreferrer" className={cls} style={style}>
-      {inner}
-    </a>
-  ) : (
-    // no live site yet → the card opens the moon's micropage instead
-    <button type="button" onClick={onOpen} className={`${cls} cursor-pointer text-left`} style={style}>
-      {inner}
+      <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#7c86a5] transition-colors group-hover:text-white">
+        open the moon ↗
+      </p>
     </button>
   );
 }
@@ -153,9 +147,17 @@ function OrbitSection({
   index: number;
   onMoon: (moon: MoonSpec) => void;
 }) {
+  const reduced = useReducedMotion();
   return (
     <section id={spec.id} className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
-      <div className="pointer-events-auto max-w-2xl">
+      {/* P3.1: the section reveals as the fly-to arrives (once per section) */}
+      <motion.div
+        className="pointer-events-auto max-w-2xl"
+        initial={reduced ? false : { opacity: 0, y: 26 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+      >
         <p className="font-mono text-xs uppercase tracking-[0.3em]" style={{ color: spec.color }}>
           orbit {String(index + 1).padStart(2, '0')} · {spec.qualifier}
         </p>
@@ -174,7 +176,7 @@ function OrbitSection({
             ◦ orbit under construction — first bodies form in a later milestone
           </p>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -436,43 +438,114 @@ export default function VariantFour() {
     if (reduced) setIgnited(true);
   }, [reduced]);
 
-  // “Travel”: sun → back to top, planet → its DOM section. The 3D layer is a
-  // spatial metaphor over a normal document flow, never the only way to navigate.
-  const travel = (id: string) => {
-    const behavior = reduced ? 'auto' : 'smooth';
-    if (id === 'sun') {
-      window.scrollTo({ top: 0, behavior });
+  // P3.2 imperative bridge to the lazy orrery chunk (focusMoon)
+  const orreryApi = useRef<OrreryApi | null>(null);
+
+  // P3.1 assisted travel à la explorer: one eased 0.9–2.8 s flight to the
+  // target scroll offset — the cinematic camera rides it through camT. The 3D
+  // layer stays a spatial metaphor over normal document flow, never the only
+  // way to navigate.
+  const flightRef = useRef(0);
+  const cancelFlight = (): void => {
+    if (flightRef.current) {
+      cancelAnimationFrame(flightRef.current);
+      flightRef.current = 0;
+    }
+  };
+  const flyTo = (top: number): void => {
+    cancelFlight();
+    if (reduced) {
+      window.scrollTo({ top, behavior: 'auto' });
       return;
     }
-    document.getElementById(id)?.scrollIntoView({ behavior });
+    const startY = window.scrollY;
+    const dist = top - startY;
+    if (Math.abs(dist) < 2) return;
+    const dur = Math.min(2800, 900 + Math.abs(dist) * 0.42);
+    const t0 = performance.now();
+    const ease = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const step = (now: number): void => {
+      const k = Math.min(1, (now - t0) / dur);
+      window.scrollTo(0, startY + dist * ease(k));
+      flightRef.current = k < 1 ? requestAnimationFrame(step) : 0;
+    };
+    flightRef.current = requestAnimationFrame(step);
   };
+  const flyToSection = (id: string): void => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    flyTo(
+      Math.max(0, Math.min(max, rect.top + window.scrollY + rect.height * 0.5 - window.innerHeight * 0.5)),
+    );
+  };
+  useEffect(() => {
+    // the visitor's own scroll always wins — any intent tick cancels the flight
+    const stop = (): void => cancelFlight();
+    const onKey = (e: KeyboardEvent): void => {
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) stop();
+    };
+    window.addEventListener('wheel', stop, { passive: true });
+    window.addEventListener('touchmove', stop, { passive: true });
+    window.addEventListener('keydown', onKey, { passive: true });
+    return () => {
+      window.removeEventListener('wheel', stop);
+      window.removeEventListener('touchmove', stop);
+      window.removeEventListener('keydown', onKey);
+      cancelFlight();
+    };
+  }, []);
 
   // P2.6 micropages (owner review 2026-10-03): clicking a planet (3D or nav)
   // travels AND opens its category panel; clicking a project moon (`id::m<n>`
-  // from the raycast) opens the project panel. The panel slides in while the
-  // camera flies — description and destination in one gesture.
+  // from the raycast) opens the project panel. P3: travel is a 1–2.8 s eased
+  // flight, and moons now LAND — the camera parks on the moon itself.
   const [panel, setPanel] = useState<Panel | null>(null);
 
+  const openMoon = (spec: BodySpec, moon: MoonSpec): void => {
+    const i = spec.moons.indexOf(moon);
+    orreryApi.current?.focusMoon(i >= 0 ? `${spec.id}::m${i}` : null);
+    setPanel({ kind: 'moon', spec, moon });
+  };
+
   const select = (id: string) => {
+    setHintOn(false);
     if (id === 'sun') {
-      travel(id);
+      flyTo(0);
       return;
     }
     const moonHit = /^([\w-]+)::m(\d+)$/.exec(id);
     if (moonHit) {
       const spec = system.planets.find((p) => p.id === moonHit[1]);
       const moon = spec?.moons[Number(moonHit[2])];
-      if (spec && moon) {
-        travel(spec.id);
-        setPanel({ kind: 'moon', spec, moon });
-      }
+      if (spec && moon) openMoon(spec, moon); // P3.2: the camera lands on the moon — no page scroll
       return;
     }
     const spec = system.planets.find((p) => p.id === id);
     if (!spec || spec.scenic) return; // scenic bodies: sky decoration only
-    travel(id);
+    orreryApi.current?.focusMoon(null);
+    flyToSection(id);
     setPanel({ kind: 'planet', spec });
   };
+
+  // P3.3: one-time post-ignition hint — the sky is interactive. One showing
+  // per session (sessionStorage); auto-dismisses or dies on the first travel.
+  const [hintOn, setHintOn] = useState(false);
+  useEffect(() => {
+    if (!ignited || reduced) return;
+    try {
+      if (sessionStorage.getItem('gtrd-v4-sky-hint')) return;
+      sessionStorage.setItem('gtrd-v4-sky-hint', '1');
+    } catch {
+      // private mode — show it anyway
+    }
+    setHintOn(true);
+    const t = window.setTimeout(() => setHintOn(false), 6500);
+    return () => window.clearTimeout(t);
+  }, [ignited, reduced]);
+  const coarse =
+    typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
 
   // P2.6 hero framing (owner request): at rest the text interface steps LEFT,
   // clearing stage space for the system; it resolves back to the standard
@@ -492,7 +565,12 @@ export default function VariantFour() {
   return (
     <main className="relative min-h-screen overflow-x-clip bg-[#04060d] font-body text-[#e8eaf2]">
       <Suspense fallback={null}>
-        <OrreryBackground onSelect={select} />
+        <OrreryBackground
+          onSelect={select}
+          onReady={(api) => {
+            orreryApi.current = api;
+          }}
+        />
       </Suspense>
       {!ignited && <Ignition onDone={() => setIgnited(true)} />}
 
@@ -583,12 +661,7 @@ export default function VariantFour() {
         </div>
 
         {contentPlanets.map((p, i) => (
-          <OrbitSection
-            key={p.id}
-            spec={p}
-            index={i}
-            onMoon={(moon) => setPanel({ kind: 'moon', spec: p, moon })}
-          />
+          <OrbitSection key={p.id} spec={p} index={i} onMoon={(moon) => openMoon(p, moon)} />
         ))}
 
         <footer className="border-t border-white/10 px-6 py-10">
@@ -613,10 +686,31 @@ export default function VariantFour() {
         {panel && (
           <Micropage
             panel={panel}
-            onClose={() => setPanel(null)}
-            onMoon={(spec, moon) => setPanel({ kind: 'moon', spec, moon })}
-            onPlanet={(spec) => setPanel({ kind: 'planet', spec })}
+            onClose={() => {
+              orreryApi.current?.focusMoon(null); // P3.2: lift off — blend back to the scroll camera
+              setPanel(null);
+            }}
+            onMoon={(spec, moon) => openMoon(spec, moon)}
+            onPlanet={(spec) => select(spec.id)}
           />
+        )}
+      </AnimatePresence>
+
+      {/* P3.3: one-time post-ignition hint — dismisses itself or dies on first travel */}
+      <AnimatePresence>
+        {hintOn && (
+          <motion.p
+            key="sky-hint"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="pointer-events-none fixed inset-x-0 bottom-6 z-30 flex justify-center px-6"
+          >
+            <span className="rounded-full border border-white/15 bg-[#070b18]/85 px-5 py-2 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-[#9aa3b8] backdrop-blur">
+              the sky is live — {coarse ? 'tap' : 'click'} a planet to travel · a moon to land
+            </span>
+          </motion.p>
         )}
       </AnimatePresence>
     </main>
