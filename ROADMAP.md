@@ -197,6 +197,20 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 - [x] 3 new vitests (system.test.ts): Mimas slot + repo href, complete
       detail block, exhibit path integrity.
 
+**P2.9 — DeutschMeister: second real micropage** ✅ 2026-10-08
+- [x] Source of truth: the owner's deutschmeister repo README (live v2.1.0,
+      M0–M8 shipped, M9–M11 pending) — the P2.8 pattern proved repeatable:
+      data-only edits in system.ts, zero component changes.
+- [x] The DeutschMeister data: real tagline, 4 paragraphs (local-first
+      philosophy → deterministic learning engine → the AI layer → shipping
+      discipline), 5 tech chips, 7 fact rows, 2 secondary links (repo +
+      living roadmap); primary link stays the LIVE app URL. Io slot kept,
+      note updated to the real one-liner. No exhibit this round — the only
+      asset is the owner's logo (ask-before-use per AGENT.md); an app
+      screenshot can be added later.
+- [x] 2 new vitests (system.test.ts): Io slot + live href + repo link
+      present; complete detail block.
+
 **P3 — Interaction depth** (shipped 2026-10-08)
 - [x] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
       Implemented as an eased 0.9–2.8 s programmatic scroll flight (rAF tween,

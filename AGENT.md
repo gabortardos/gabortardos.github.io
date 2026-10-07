@@ -359,6 +359,24 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   `(HTMLElement | null)[]` → indexed gives `| undefined` too; `?? null`
   before passing to `setHot`.
 
+### v4 P2.9 shipped (2026-10-08)
+- **DeutschMeister micropage (apps orbit, Io slot):** second real project
+  on the P2.8 pattern — pure data edit in system.ts (`MoonSpec.detail`),
+  zero component changes. Primary link = the LIVE app URL; repo + living
+  roadmap as secondary panel links. Facts sourced from the repo README
+  (v2.1.0, M0–M8 shipped) — when the app ships M9+ (payments, graphics,
+  learning depth) refresh the paragraphs/facts; it is copy, not code.
+- **No exhibit by design:** the only DeutschMeister asset is the owner's
+  logo (`~/Desktop/deutschmeister logo1.png`, ask-before-use rule) and the
+  app is a JS SPA this environment cannot screenshot headlessly. To add one
+  later: drop an image in `public/projects/deutschmeister/`, add `exhibit`
+  to the detail block (the vitest regex enforces `/projects/<proj>/*.svg`).
+- **Pattern validated twice:** repo analysis → `detail` block →
+  data-integrity tests → gate → docs. Reuse for Support Automation
+  (Enceladus) when its repo publishes, Solar System Explorer (Europa) when
+  the owner wants more than the live link + engine story, and any future
+  moon (Ganymede/Callisto slots are free scenic slots on Jupiter).
+
 ## Resume protocol for a new agent session
 
 
