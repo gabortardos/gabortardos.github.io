@@ -158,8 +158,11 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   applies): `gh api -X POST repos/gabortardos/gabortardos.github.io/pages -f
   build_type=workflow`, then `gh run rerun <deploy-run-id> --failed`. Pages now
   runs WORKFLOW-ONLY (`build_type: "workflow"`): the legacy `pages build and
-  deployment` pipeline no longer fires, the wait step in deploy.yml is a fast
-  no-op, and the old post-push blank-page window should be gone. Recovery
+  deployment` pipeline no longer fires, and the wait step in deploy.yml is now
+  explicitly source-aware (made 2026-10-12): it reads
+  `gh api repos/…/pages .build_type` and exits instantly on `workflow`,
+  falling back to the old timed wait only if that read fails. The old
+  post-push blank-page window should be gone. Recovery
   verified live: root + both bundles byte-exact vs local dist.
 - **Post-push behavior while `build_type` is legacy (expected, not a regression):** for up to
   ~1–2 min after a push the site may serve the legacy pipeline’s snapshot (raw source → blank

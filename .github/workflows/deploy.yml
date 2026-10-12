@@ -54,6 +54,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          BUILD_TYPE=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq '.build_type' 2>/dev/null || true)
+          if [ "${BUILD_TYPE}" = "workflow" ]; then
+            echo "Pages source is GitHub Actions (build_type=workflow) — no legacy pipeline exists. Skipping the wait."
+            exit 0
+          fi
           echo "Repo Pages source is still the legacy pipeline, so both pipelines publish on push."
           echo "Publishing is last-writer-wins — we must deploy only after the legacy run for this SHA finishes."
           for i in $(seq 1 60); do
