@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="950" viewBox="0 0 1800 950" role="img" aria-labelledby="title desc">
+<title id="title">The DressPilot Make.com orchestration map</title>
+<desc id="desc">Readable reconstruction of the DressPilot prototype: Telegram trigger and routing, user profile, live weather, calendar events, AI interpretation and a clothing strategist, delivery back to Telegram, with onboarding, scheduled refresh and datastore persistence.</desc>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9ca3af"/></marker>
+  <style>
+    .h1{font:700 36px Arial,sans-serif;fill:#111827}
+    .sub{font:400 18px Arial,sans-serif;fill:#6b7280}
+    .label{font:700 16px Arial,sans-serif;fill:#1f2937}
+    .small{font:400 13px Arial,sans-serif;fill:#6b7280}
+    .num{font:700 12px Arial,sans-serif;fill:#fff}
+    .flow{fill:none;stroke:#a8b1bd;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .dash{fill:none;stroke:#b7c1cc;stroke-width:3;stroke-dasharray:7 8;stroke-linecap:round;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect width="1800" height="950" fill="#f8fafc"/>
+<text x="55" y="58" class="h1">DRESSPILOT — MAKE.COM ORCHESTRATION MAP</text>
+<text x="55" y="90" class="sub">A readable reconstruction of the working prototype: context layers in, AI reasoning, outfit advice out on Telegram.</text>
+
+<!-- main row flows -->
+<path class="flow" d="M155 270 H305"/>
+<path class="flow" d="M385 270 H535"/>
+<path class="flow" d="M615 270 H765"/>
+<path class="flow" d="M845 270 H995"/>
+<path class="flow" d="M1075 270 H1225"/>
+<path class="flow" d="M1305 270 H1455"/>
+<path class="flow" d="M1535 270 H1685"/>
+
+<!-- main nodes -->
+<g>
+  <circle cx="115" cy="270" r="40" fill="#229ED9"/><text x="115" y="275" text-anchor="middle" class="num">1</text>
+  <text x="115" y="333" text-anchor="middle" class="label">Telegram</text><text x="115" y="353" text-anchor="middle" class="small">watch updates</text>
+
+  <circle cx="345" cy="270" r="40" fill="#9ACD5D"/><text x="345" y="275" text-anchor="middle" class="num">2</text>
+  <text x="345" y="333" text-anchor="middle" class="label">Router</text><text x="345" y="353" text-anchor="middle" class="small">user / onboarding / schedule</text>
+
+  <circle cx="575" cy="270" r="40" fill="#2F8FBF"/><text x="575" y="275" text-anchor="middle" class="num">3</text>
+  <text x="575" y="333" text-anchor="middle" class="label">User Profile</text><text x="575" y="353" text-anchor="middle" class="small">datastore record</text>
+
+  <circle cx="805" cy="270" r="40" fill="#60a5fa"/><text x="805" y="275" text-anchor="middle" class="num">4</text>
+  <text x="805" y="333" text-anchor="middle" class="label">Weather</text><text x="805" y="353" text-anchor="middle" class="small">by dynamic location</text>
+
+  <circle cx="1035" cy="270" r="40" fill="#a78bfa"/><text x="1035" y="275" text-anchor="middle" class="num">5</text>
+  <text x="1035" y="333" text-anchor="middle" class="label">Calendar</text><text x="1035" y="353" text-anchor="middle" class="small">today's events</text>
+
+  <circle cx="1265" cy="270" r="40" fill="#10A37F"/><text x="1265" y="275" text-anchor="middle" class="num">6</text>
+  <text x="1265" y="333" text-anchor="middle" class="label">AI Interpreter</text><text x="1265" y="353" text-anchor="middle" class="small">what the events mean</text>
+
+  <circle cx="1495" cy="270" r="40" fill="#8F70D8"/><text x="1495" y="275" text-anchor="middle" class="num">7</text>
+  <text x="1495" y="333" text-anchor="middle" class="label">AI Strategist</text><text x="1495" y="353" text-anchor="middle" class="small">clothing strategy</text>
+
+  <circle cx="1725" cy="270" r="40" fill="#229ED9"/><text x="1725" y="275" text-anchor="middle" class="num">8</text>
+  <text x="1725" y="333" text-anchor="middle" class="label">Telegram</text><text x="1725" y="353" text-anchor="middle" class="small">outfit advice out</text>
+</g>
+
+<!-- dashed branches -->
+<path class="dash" d="M345 310 C345 420 300 440 250 470"/>
+<path class="dash" d="M615 310 C615 390 700 400 760 430"/>
+
+<!-- onboarding -->
+<rect x="80" y="470" width="560" height="96" rx="18" fill="#ffffff" stroke="#d1d5db" stroke-width="2"/>
+<text x="110" y="508" class="label">Onboarding — /start</text>
+<text x="110" y="536" class="small">new user → profile, location and datastore keys created</text>
+
+<!-- persistence -->
+<rect x="700" y="430" width="1020" height="96" rx="18" fill="#ffffff" stroke="#d1d5db" stroke-width="2"/>
+<text x="730" y="468" class="label">Persistence — Make.com datastores</text>
+<text x="730" y="496" class="small">user records · daily context · change detection (stale-state prevention in progress)</text>
+
+<!-- morning refresh -->
+<rect x="80" y="620" width="1640" height="96" rx="18" fill="#ffffff" stroke="#d1d5db" stroke-width="2"/>
+<text x="110" y="658" class="label">Morning refresh — scheduled</text>
+<text x="110" y="686" class="small">re-pull weather + calendar → update daily context → trigger advice for each user</text>
+
+<!-- multi-user note -->
+<rect x="80" y="760" width="1640" height="96" rx="18" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/>
+<text x="110" y="798" class="label">Designed multi-user</text>
+<text x="110" y="826" class="small">dynamic user identifiers, per-user datastore keys and routing — foundations live, hardening next</text>
+
+<rect x="55" y="880" width="1690" height="44" rx="14" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+<text x="78" y="908" class="sub">Source of truth: the project docs (ARCHITECTURE · PROJECT-STATUS). Reconstruction optimized for readability — DressPilot is an evolving prototype.</text>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" role="img" aria-labelledby="title desc">
+<title id="title">AI-enhanced support automation concept</title>
+<desc id="desc">A customer message flows through AI knowledge retrieval, then branches to a customer reply or human escalation</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081a34"/><stop offset="1" stop-color="#162d45"/></linearGradient><linearGradient id="glow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#27d0c6"/><stop offset="1" stop-color="#79a7ff"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#031122" flood-opacity=".5"/></filter></defs>
+<rect width="1200" height="500" rx="28" fill="url(#bg)"/>
+<g fill="none" stroke="#285072" opacity=".3"><path d="M0 95H1200M0 200H1200M0 305H1200M0 410H1200"/><path d="M110 0V500M310 0V500M510 0V500M710 0V500M910 0V500M1110 0V500"/></g>
+<text x="64" y="65" font-family="Arial,sans-serif" font-size="17" letter-spacing="4" fill="#75d9d8">KNOWLEDGE-GROUNDED AUTOMATION</text>
+<text x="64" y="120" font-family="Arial,sans-serif" font-size="44" font-weight="700" fill="#f3f7ff">Customer support, reimagined.</text>
+<text x="64" y="158" font-family="Arial,sans-serif" font-size="19" fill="#b9ccdf">Intent  →  Knowledge  →  Decision  →  Action</text>
+<g filter="url(#shadow)" font-family="Arial,sans-serif">
+<rect x="70" y="235" width="205" height="118" rx="18" fill="#19324c" stroke="#5285a8"/><text x="93" y="268" font-size="13" letter-spacing="2" fill="#68d8ce">01 / INTAKE</text><text x="93" y="303" font-size="23" fill="#f5f9ff" font-weight="700">Customer</text><text x="93" y="331" font-size="17" fill="#bad1e2">message</text>
+<rect x="360" y="215" width="260" height="157" rx="20" fill="#17445a" stroke="#44cfc6" stroke-width="2"/><text x="385" y="252" font-size="13" letter-spacing="2" fill="#78ede2">02 / REASONING</text><text x="385" y="289" font-size="26" fill="#fff" font-weight="700">AI Agent</text><text x="385" y="321" font-size="17" fill="#bce8e4">+ scenario knowledge</text><path d="M385 338H580" stroke="#58c5ce" stroke-width="3"/>
+<rect x="705" y="235" width="182" height="118" rx="18" fill="#1f3152" stroke="#7399f0"/><text x="727" y="267" font-size="13" letter-spacing="2" fill="#93b9ff">03 / ROUTING</text><text x="727" y="304" font-size="23" fill="#fff" font-weight="700">Decision</text><text x="727" y="331" font-size="16" fill="#c2cee8">typed output</text>
+<rect x="976" y="195" width="167" height="73" rx="16" fill="#164b54" stroke="#3ccbb2"/><text x="996" y="230" font-size="18" font-weight="700" fill="#e8fff9">Direct reply</text><text x="996" y="251" font-size="13" fill="#a5dfd8">answer-first</text>
+<rect x="976" y="317" width="167" height="74" rx="16" fill="#45344b" stroke="#d1a0ce"/><text x="996" y="352" font-size="17" font-weight="700" fill="#fff">Escalation</text><text x="996" y="373" font-size="13" fill="#e2bedf">human review</text>
+</g>
+<g fill="none" stroke="url(#glow)" stroke-width="5" stroke-linecap="round"><path d="M277 293H348"/><path d="M624 293H695"/><path d="M890 293H930V232H965"/><path d="M930 293V354H965"/></g>
+<g fill="#76ded8"><circle cx="349" cy="293" r="6"/><circle cx="695" cy="293" r="6"/><circle cx="965" cy="232" r="6"/><circle cx="965" cy="354" r="6"/></g>
+<text x="69" y="449" font-family="Arial,sans-serif" font-size="15" fill="#9cb6cd">Make.com  •  AI knowledge retrieval  •  Structured results  •  Human oversight</text>
+</svg>

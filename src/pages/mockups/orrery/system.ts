@@ -262,6 +262,9 @@ export const system = {
           },
         },
         {
+          // the real project repo: gabortardos/solar-system-explorer —
+          // LIVE since V1.1 via ChatGPT Sites; micropage copy sourced from
+          // the repo README (V1.1 baseline, JPL data, tech stack)
           name: 'Solar System Explorer',
           note: 'Interactive 3D solar system for training, teaching and fun. Its engine is the sky behind this page.',
           status: 'LIVE',
@@ -270,6 +273,26 @@ export const system = {
           size: 0.105,
           dist: 2.25,
           speed: 0.17,
+          detail: {
+            tagline:
+              'An interactive 3D solar system built for teaching and play — 29 destinations, sourced astronomy, and the engine that paints this portfolio’s sky.',
+            paragraphs: [
+              'Solar System Explorer is a browser-native tour of the Sun, the Moon and the eight planets — a playable 3D scene with assisted travel, full manual flight and a curated offline astronomy guide. Pick any of the 29 modeled destinations in the scene or from search, glide in on a curved approach, then take the controls: keyboard, mouse and touch all fly.',
+              'The science is sourced, not invented. Planet positions come from JPL’s approximate Keplerian elements for 1800–2050, evaluated at the displayed time; twenty major moons ride published J2000 mean orbits; facts and center-to-center distances are computed from the model before visual compression. Switch between a comfortable exploration scale and relatively accurate orbital distances whenever you like.',
+              'It is engineered like software, not a demo: React 19 and TypeScript, Three.js WebGL with a Canvas 2D fallback for devices without WebGL, schematic Asteroid Belt, Kuiper Belt and Trojan regions, exploration progress saved in the browser, a reduced-motion mode and a compact mobile HUD. The current stable baseline is V1.1.',
+              'This portfolio owes the explorer its sky — the three.js engine orbiting behind these words is a stripped-down adaptation of the explorer’s scene code, and the same idea powers the camera flights between the sections you are reading. Click below and go fly the real thing.',
+            ],
+            tech: ['React 19 · TypeScript', 'Three.js · WebGL', 'Vite · Vinext', 'Canvas 2D fallback', 'ChatGPT Sites hosting'],
+            facts: [
+              ['type', 'interactive 3D solar system — teaching & play'],
+              ['version', 'V1.1 stable baseline — live via ChatGPT Sites'],
+              ['destinations', '29 modeled · 32-body sourced science catalogue'],
+              ['science', 'JPL Keplerian positions 1800–2050 · sourced moon orbits'],
+              ['flight', 'assisted travel + manual controls — keyboard, mouse, touch'],
+              ['built with', 'OpenAI — twin GLM build for engine comparison'],
+              ['privacy', 'no accounts, no analytics — progress stays in the browser'],
+            ],
+          },
         },
       ],
       planet: 'jupiter',
@@ -290,7 +313,7 @@ export const system = {
       qualifier: 'make.com systems',
       color: '#fbbf24',
       blurb:
-        'Make.com systems that quietly move data, interpret intent and remember context so people don’t have to. Seven real Saturnian moons, room for every pipeline — The Roast Desk rides Mimas, the support-desk study rides Enceladus.',
+        'Make.com systems that quietly move data, interpret intent and remember context so people don’t have to. Seven real Saturnian moons, room for every pipeline — The Roast Desk rides Mimas, the support-desk study rides Enceladus, and DressPilot rides Tethys.',
       moons: [
         {
           // the real project: github.com/gabortardos/roast-desk-ai-automation
@@ -330,6 +353,10 @@ export const system = {
           },
         },
         {
+          // the real project: github.com/gabortardos/
+          // Customer-Service-Automation-system-evcharging (repo private,
+          // owner decision 2026-10-12) — v1.0.0 working prototype;
+          // copy sourced from the repo README + portfolio/project.json
           name: 'Support Automation',
           note: 'Customer-support system modeled on a real EV-charging operation.',
           status: 'CASE STUDY',
@@ -337,13 +364,76 @@ export const system = {
           size: 0.055,
           dist: 2.75,
           speed: 0.17,
+          detail: {
+            tagline:
+              'From frontline EV-charging support experience to a knowledge-grounded automation that answers what it knows — and escalates what it doesn’t.',
+            paragraphs: [
+              'This system grew out of real frontline work in EV-charging customer experience. The same questions kept arriving: how to start a session, why a payment failed, where the invoice is, when a human is actually needed. The hypothesis: a meaningful share of that load is automatable — as long as the automation knows exactly what it knows.',
+              'The pipeline is knowledge-grounded by design. An inbound email enters a Make.com workflow; a Make AI Agent matches it against a knowledge base of 102 scenarios — each carrying phrasing variants, a direct or step-by-step answer, internal resolution logic and explicit escalation triggers. The agent never mails freely: it returns typed, structured output, and deterministic Make routing decides what is sent, what is logged to the ticket sheet, and what goes to a human.',
+              'Every ticket leaves a trace: matched scenario, confidence, escalation flag and handoff details. The documented lessons are the honest kind — separating customer-facing answers from internal investigation logic, and fixing the classic failures: unmapped Gmail fields, router filters on literal text, mismatched output keys. One striking observation from testing: a single AI Agent run dropped from 77.28 Make credits to under 5 after reconfiguring the model and agent.',
+              'Scope, stated plainly: an independent learning project — not an IONITY or EVA Global system, and not production. Email replies and Sheets ticket logging are demonstrated end-to-end; broader escalation and messy-language testing come next. The interesting part is the boundary: AI recommends, the workflow acts, humans stay in the loop.',
+            ],
+            tech: ['Make.com', 'Make AI Agent', 'Gmail', 'Google Sheets', 'JSON Knowledge Base'],
+            facts: [
+              ['type', 'independent working prototype — not production'],
+              ['knowledge', '102 scenarios · phrasing variants · escalation triggers'],
+              ['pipeline', 'email → AI Agent → structured reply · ticket log · escalation'],
+              ['routing', 'deterministic Make filters — the model never sends mail'],
+              ['records', 'scenario match · confidence · handoff details per ticket'],
+              ['version', 'v1.0.0 — email channel demonstrated, hardening next'],
+              ['origin', 'modeled on frontline CX at a real EV-charging operator'],
+            ],
+            exhibit: {
+              src: '/projects/support-automation/cover.svg',
+              alt: 'Support automation concept — a customer message flows through AI knowledge retrieval, then branches to a customer reply or human escalation',
+              caption: 'the concept — customer email in, knowledge-grounded reply or human escalation out',
+            },
+          },
+        },
+        {
+          // the real project: github.com/gabortardos/
+          // DressPilot-AI-Wardrobe-Orchestration (repo private, owner
+          // decision 2026-10-12) — live as the DressPilot v1 Telegram
+          // bot; copy adapted from the repo's docs/WEBSITE-CONTENT.md
+          name: 'DressPilot',
+          note: 'AI wardrobe assistant on Telegram — weather, calendar and profile, orchestrated by Make.com.',
+          status: 'CASE STUDY',
+          href: 'https://t.me/DressPilotv1bot',
+          surface: 'tethys',
+          size: 0.06,
+          dist: 3.0,
+          speed: 0.15,
+          detail: {
+            tagline:
+              'Learning AI orchestration by building a context-aware wardrobe assistant — weather, calendar and memory in, outfit advice out on Telegram.',
+            paragraphs: [
+              'DressPilot is a playful experiment in serious automation. The premise is simple — combine the weather, your calendar and your preferences into clothing advice — but the engineering underneath is the point: API responses, multi-step AI reasoning, persistent records, dynamic users, refresh timing and integrations that do not always behave.',
+              'The flow runs on Make.com. Every user has a persistent profile and datastore records; live weather arrives by dynamic location; an AI layer interprets what the day’s calendar events actually mean — an interview is not a gym session — and an AI clothing strategist composes the advice from all of it. Telegram delivers it straight to your phone.',
+              'The wardrobe was chosen as a creative lab, not because the world needs another outfit app. Each feature teaches system design: coordinating freshly fetched context with what previous runs saved, designing for many users with dynamic identifiers and datastore keys, and discovering why cache freshness and scheduler timing matter as much as the prompt.',
+              'It is honestly an evolving prototype: onboarding, weather, calendar interpretation, strategy generation, persistence and Telegram delivery are working foundations; reliability and observability are the active frontier. Open the bot below and say hello — the bot is the demo, and every strange bug in it teaches another architectural lesson.',
+            ],
+            tech: ['Telegram Bot', 'Make.com', 'AI Reasoning ×2', 'Datastores', 'Weather · Calendar APIs'],
+            facts: [
+              ['interface', 'Telegram bot — DressPilot v1, open and ask'],
+              ['inputs', 'live weather · calendar events · persistent profile'],
+              ['orchestration', 'Make.com — routers, schedules, datastores, state'],
+              ['ai', 'calendar interpretation → clothing strategist, two stages'],
+              ['multi-user', 'dynamic user IDs + datastore key patterns'],
+              ['status', 'evolving prototype — foundations live, hardening next'],
+            ],
+            exhibit: {
+              src: '/projects/dresspilot/flow.svg',
+              alt: 'DressPilot orchestration map — Telegram trigger, profile, weather and calendar context feeding AI interpretation and a clothing strategist that delivers advice on Telegram',
+              caption: 'the working flow, reconstructed — context layers in, outfit advice out',
+            },
+          },
         },
       ],
       planet: 'saturn',
       // the real major moons (inner → outer), just outside the ring band;
       // Titan wears no map — in reality it is an opaque, hazy orange ball
+      // Tethys left this scenic list in P2.11 — DressPilot claimed the slot
       sceneMoons: [
-        { name: 'Tethys', surface: 'tethys', size: 0.06, dist: 3.0, tint: '#b8b2a8', speed: 0.15 },
         { name: 'Dione', surface: 'dione', size: 0.06, dist: 3.25, tint: '#b5aea6', speed: 0.13 },
         { name: 'Rhea', surface: 'rhea', size: 0.07, dist: 3.55, tint: '#b8b4ae', speed: 0.11 },
         { name: 'Titan', size: 0.16, dist: 4.0, tint: '#c8956c', speed: 0.085 },

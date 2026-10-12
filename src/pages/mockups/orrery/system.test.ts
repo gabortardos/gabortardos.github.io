@@ -10,8 +10,11 @@ import type { BodySpec, MoonSpec } from './system';
 const planets = system.planets as BodySpec[];
 const make = planets.find((p) => p.id === 'make');
 const roast = make?.moons.find((m) => m.name === 'The Roast Desk');
+const sa = make?.moons.find((m) => m.name === 'Support Automation');
+const dp = make?.moons.find((m) => m.name === 'DressPilot');
 const apps = planets.find((p) => p.id === 'apps');
 const dm = apps?.moons.find((m) => m.name === 'DeutschMeister');
+const explorer = apps?.moons.find((m) => m.name === 'Solar System Explorer');
 
 describe('orrery system — moon micropage data', () => {
   it('The Roast Desk rides the Mimas slot of the make orbit and opens its live Telegram bot', () => {
@@ -59,5 +62,48 @@ describe('orrery system — moon micropage data', () => {
     d?.paragraphs.forEach((p) => expect(p.length).toBeGreaterThan(80));
     expect(d?.tech?.length ?? 0).toBeGreaterThanOrEqual(3);
     expect(d?.facts?.length ?? 0).toBeGreaterThanOrEqual(4);
+  });
+
+  // P2.11: Support Automation (Enceladus), DressPilot (Tethys) and the
+  // Solar System Explorer (Europa) micropages
+  it('Support Automation rides the Enceladus slot with a complete micropage and its concept exhibit', () => {
+    expect(sa).toBeDefined();
+    expect(sa?.surface).toBe('enceladus');
+    expect(sa?.status).toBe('CASE STUDY');
+    const d = sa?.detail;
+    expect(d?.tagline.length ?? 0).toBeGreaterThan(20);
+    expect(d?.paragraphs.length ?? 0).toBeGreaterThanOrEqual(3);
+    d?.paragraphs.forEach((p) => expect(p.length).toBeGreaterThan(80));
+    expect(d?.tech?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(d?.facts?.length ?? 0).toBeGreaterThanOrEqual(4);
+    expect(d?.exhibit?.src).toBe('/projects/support-automation/cover.svg');
+    expect(d?.facts?.some(([k, v]) => k === 'version' && v.includes('v1.0.0'))).toBe(true);
+    expect(d?.links).toBeUndefined();
+  });
+
+  it('DressPilot rides the Tethys slot — no longer scenic — and opens its live Telegram bot', () => {
+    expect(dp).toBeDefined();
+    expect(dp?.surface).toBe('tethys');
+    expect(dp?.href).toBe('https://t.me/DressPilotv1bot');
+    expect(make?.sceneMoons?.some((m) => m.name === 'Tethys')).toBeFalsy();
+    const d = dp?.detail;
+    expect(d?.tagline.length ?? 0).toBeGreaterThan(20);
+    expect(d?.paragraphs.length ?? 0).toBeGreaterThanOrEqual(3);
+    d?.paragraphs.forEach((p) => expect(p.length).toBeGreaterThan(80));
+    expect(d?.facts?.length ?? 0).toBeGreaterThanOrEqual(4);
+    expect(d?.exhibit?.src).toBe('/projects/dresspilot/flow.svg');
+    expect(d?.links).toBeUndefined();
+  });
+
+  it('Solar System Explorer carries a complete micropage with version stamp and built-with provenance', () => {
+    expect(explorer).toBeDefined();
+    expect(explorer?.surface).toBe('europa');
+    const d = explorer?.detail;
+    expect(d?.tagline.length ?? 0).toBeGreaterThan(20);
+    expect(d?.paragraphs.length ?? 0).toBeGreaterThanOrEqual(3);
+    d?.paragraphs.forEach((p) => expect(p.length).toBeGreaterThan(80));
+    expect(d?.tech?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(d?.facts?.some(([k]) => k === 'built with')).toBe(true);
+    expect(d?.facts?.some(([k, v]) => k === 'version' && v.includes('V1.1'))).toBe(true);
   });
 });
