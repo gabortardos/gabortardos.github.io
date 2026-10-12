@@ -390,6 +390,27 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   the owner wants more than the live link + engine story, and any future
   moon (Ganymede/Callisto slots are free scenic slots on Jupiter).
 
+### v4 P2.11 shipped (2026-10-12)
+- **Three micropages, zero component changes** — the P2.8 pattern held at
+  scale: Solar System Explorer (apps/Europa, LIVE), Support Automation
+  (make/Enceladus, deliberately no href — email-driven demo; add `href` the
+  day the owner publishes a demo address), DressPilot (make/Tethys, live
+  t.me/DressPilotv1bot). Tethys is the first scenic→project promotion:
+  removed from `sceneMoons`, added to `moons`; the scene needed nothing
+  (texture map + label layer are generic over both lists).
+- **New fact-row conventions (owner-approved):** `version` stamps (V1.1,
+  v1.0.0) and `built with` provenance (Explorer: OpenAI + GLM twin for
+  engine comparison). Apply both to future micropages.
+- **OG image pipeline:** `tools/og-portfolio.html` (1200×630 card) →
+  headless Chrome `--headless=new --screenshot --window-size=1200,630` →
+  `public/og.png` + og:/twitter: meta in index.html. Regenerate with one
+  command after editing the card. Per-project OG needs per-project URLs —
+  revisit when/if the public case-studies repo lands (owner to create it).
+- **Private-repo ingestion:** `gh api repos/<owner>/<repo>/contents/<path>`
+  (base64) reads the private repos with the owner's token — micropage copy
+  and the SA cover were sourced this way. The public site stays link-free
+  (owner decision 2026-10-12: no outbound repo links).
+
 ## Resume protocol for a new agent session
 
 

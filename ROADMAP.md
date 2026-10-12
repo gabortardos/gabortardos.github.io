@@ -211,6 +211,30 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 - [x] 2 new vitests (system.test.ts): Io slot + live href + repo link
       present; complete detail block.
 
+**P2.11 — Three micropages at once: Explorer, Support Automation, DressPilot** ✅ 2026-10-12
+- [x] Solar System Explorer (apps/Europa): first LIVE-status micropage; copy
+      from the repo README — V1.1 baseline, 29 destinations, JPL Keplerian
+      science, WebGL + Canvas fallback — plus a `built with` provenance row
+      (owner-approved 2.2: OpenAI, twin GLM build) and a version-stamp row.
+- [x] Support Automation (make/Enceladus): the P2.7-reserved slot filled;
+      copy from the repo README + portfolio/project.json — 102-scenario KB,
+      typed AI Agent output, deterministic Make routing, the 77.28→<5 credits
+      observation, honest not-IONITY/not-production scope. Exhibit: the repo's
+      own assets/project-cover.svg ingested to public/projects/
+      support-automation/ (3.5 kB). No primary href by design — email-driven
+      demo; add `href` the day the owner publishes a demo address.
+- [x] DressPilot (make/Tethys): first scenic→project promotion (Tethys left
+      sceneMoons); live href t.me/DressPilotv1bot; copy adapted from the
+      repo's docs/WEBSITE-CONTENT.md; exhibit flow.svg reconstructed in the
+      Roast Desk house style (5.8 kB). Saturn blurb names all three riders.
+- [x] Root OG image (owner-approved 2.3): 1200×630 card (tools/
+      og-portfolio.html) rendered via headless Chrome → public/og.png (85 kB)
+      + og:/twitter: meta in index.html. Per-project OG images need
+      per-project URLs — parked until the public case-studies repo exists.
+- [x] 3 new vitests (system.test.ts, 11/11 total): SA complete block +
+      exhibit + v1.0.0 stamp; DressPilot Tethys slot + live href +
+      Tethys-no-longer-scenic; Explorer complete block + `built with` + V1.1.
+
 **P3 — Interaction depth** (shipped 2026-10-08)
 - [x] Planet fly-to on click (assisted travel à la explorer, ~2–3 s), then section reveal.
       Implemented as an eased 0.9–2.8 s programmatic scroll flight (rAF tween,
@@ -273,4 +297,5 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 | 2026-10-08 | v4 P2.9 DeutschMeister micropage — local gate + CI + live verification (`4dafad7`) | ✅ green — 0 TS errors · 8/8 tests (2 new) · build OK (main 329.9 kB = +2.6 kB copy; orrery chunk content byte-identical 587,420 B, hash-only change from the new main filename). Bundle greps: all 4 DeutschMeister copy probes in main; every `three` string is copy text (Roast Desk paragraphs, chooser desc) — no library leak. CI ✓ incl. Pages deploy; live (cache-busted) `index-G-Hvs6KY.js` (329,893 B) byte-exact vs local and contains the micropage copy. |
 | 2026-10-12 | Incident: repo flipped private by accident → Pages unallocated → live 404. Recovery (no code change; `6d75d83` redeployed) | ✅ recovered — local/remote git in sync at `6d75d83` (nothing lost); local gate re-run green (0 TS errors · 8/8 tests · clean build, bundles byte-identical). First rerun failed: `deploy-pages@v4` 404 "Ensure GitHub Pages has been enabled" — private flip had disabled Pages. Re-enabled via API `POST /repos/…/pages` with `build_type=workflow` (legacy pipeline now retired), rerun `--failed` → success. Live (cache-busted): root 200 · main `index-G-Hvs6KY.js` 329,893 B byte-exact · orrery `OrreryBackground-CuX0NVx5.js` 587,420 B byte-exact · exhibit 200 · DeutschMeister + Roast Desk copy probes present. |
 | 2026-10-12 | ci: wait-for-legacy step made Pages-source-aware (skip on `build_type=workflow`) | ✅ green — first workflow-only push (`71ff7e3`, docs) proved deploys still work but burned the full 10-min legacy wait (run for a legacy SHA that no longer exists). Fix: read `pages.build_type` first, exit instantly on `workflow`, keep the old wait as read-failure fallback. YAML validated (`npx js-yaml`). Next deploy verified fast-path + green (row below the fold in git history). |
+| 2026-10-12 | v4 P2.11 three micropages + root OG — local gate + CI + live verification (`27b903f`) | ✅ green — 0 TS errors · 11/11 tests (3 new) · build OK (main 336.58 kB = +7.3 kB copy; orrery chunk content-identical 587.42 kB, hash-only change). CI ✓ incl. Pages deploy; live (cache-busted) `index-CqPYyqMt.js` (336,574 B) byte-exact with all copy probes (`DressPilotv1bot` · "rides Tethys" · "102 scenarios" · "V1.1 stable baseline"). Assets live HTTP 200 byte-exact: `/og.png` 84,629 B (headless-Chrome render of `tools/og-portfolio.html`) · `/projects/dresspilot/flow.svg` 5,766 B · `/projects/support-automation/cover.svg` 3,535 B (ingested from the private repo via `gh api`). og:/twitter: meta live in index.html (3 `og:image*` tags). Tethys scenic→project promotion guarded by test. Support Automation ships without a primary href by design — pending the owner's demo email address. |
 
