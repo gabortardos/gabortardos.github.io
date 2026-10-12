@@ -14,11 +14,11 @@ const apps = planets.find((p) => p.id === 'apps');
 const dm = apps?.moons.find((m) => m.name === 'DeutschMeister');
 
 describe('orrery system — moon micropage data', () => {
-  it('The Roast Desk rides the Mimas slot of the make orbit and links its repo', () => {
+  it('The Roast Desk rides the Mimas slot of the make orbit and opens its live Telegram bot', () => {
     expect(make).toBeDefined();
     expect(roast).toBeDefined();
     expect(roast?.surface).toBe('mimas');
-    expect(roast?.href).toBe('https://github.com/gabortardos/roast-desk-ai-automation');
+    expect(roast?.href).toBe('https://t.me/GRoasting2bot');
   });
 
   it('carries a complete detail block', () => {
@@ -41,15 +41,15 @@ describe('orrery system — moon micropage data', () => {
     }
   });
 
-  it('DeutschMeister rides the Io slot of the apps orbit — live app primary, repo link in the panel', () => {
+  it('DeutschMeister rides the Io slot of the apps orbit — live app on its own domain, no dead repo links', () => {
     expect(apps).toBeDefined();
     expect(dm).toBeDefined();
     expect(dm?.surface).toBe('io');
-    expect(dm?.href).toBe('https://gabortardos.github.io/deutschmeister/');
-    expect(dm?.detail?.links).toContainEqual({
-      label: 'source on GitHub ↗',
-      href: 'https://github.com/gabortardos/deutschmeister',
-    });
+    expect(dm?.href).toBe('https://deutschmeister.gaborscreation.space/');
+    // repos are private (owner decision 2026-10-12) — micropages carry no
+    // outbound repo links, so nothing on the public site can 404
+    expect(dm?.detail?.links).toBeUndefined();
+    expect(roast?.detail?.links).toBeUndefined();
   });
 
   it('DeutschMeister carries a complete detail block', () => {

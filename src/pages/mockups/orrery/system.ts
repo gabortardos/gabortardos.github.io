@@ -229,12 +229,13 @@ export const system = {
         'Working software, built end to end with AI as the co-pilot — on the biggest planet, with the most room to grow. Every moon in this orbit is live: click one to open it. The engine painting the sky behind these words came from here.',
       moons: [
         {
-          // the real project: github.com/gabortardos/deutschmeister — live on
-          // its own Pages URL; v2.1.0, eight milestones shipped (M0–M8)
+          // the real project: github.com/gabortardos/deutschmeister (repo
+          // private, owner decision 2026-10-12) — live on its own domain;
+          // v2.1.0, eight milestones shipped (M0–M8)
           name: 'DeutschMeister',
           note: 'Local-first German tutor — spaced repetition, grammar drills and AI role-play. All data stays in the browser.',
           status: 'LIVE',
-          href: 'https://gabortardos.github.io/deutschmeister/',
+          href: 'https://deutschmeister.gaborscreation.space/',
           surface: 'io',
           size: 0.115,
           dist: 1.85,
@@ -257,16 +258,6 @@ export const system = {
               ['voice', 'speak & listen drills · hands-free auto-TTS mode'],
               ['ai adapter', 'GLM (recommended) · OpenAI · DeepSeek — BYO key or free credit'],
               ['data', 'IndexedDB + JSON export/import · optional Supabase sync'],
-            ],
-            links: [
-              {
-                label: 'source on GitHub ↗',
-                href: 'https://github.com/gabortardos/deutschmeister',
-              },
-              {
-                label: 'living roadmap ↗',
-                href: 'https://github.com/gabortardos/deutschmeister/blob/main/ROADMAP.md',
-              },
             ],
           },
         },
@@ -302,12 +293,13 @@ export const system = {
         'Make.com systems that quietly move data, interpret intent and remember context so people don’t have to. Seven real Saturnian moons, room for every pipeline — The Roast Desk rides Mimas, the support-desk study rides Enceladus.',
       moons: [
         {
-          // the real project: github.com/gabortardos/roast-desk-ai-automation —
-          // the joke generator that grew a full multi-stage automation engine
+          // the real project: github.com/gabortardos/roast-desk-ai-automation
+          // (repo private, owner decision 2026-10-12) — live as the
+          // GRoastingbot2 Telegram bot
           name: 'The Roast Desk',
           note: 'Telegram roast bot with a surprisingly thick automation engine — three AI stages, memory, telemetry.',
           status: 'CASE STUDY',
-          href: 'https://github.com/gabortardos/roast-desk-ai-automation',
+          href: 'https://t.me/GRoasting2bot',
           surface: 'mimas',
           size: 0.05,
           dist: 2.6,
@@ -335,12 +327,6 @@ export const system = {
               alt: 'The Roast Desk Make.com scenario map — Telegram trigger, routing, three AI stages, logging and admin statistics branches',
               caption: 'the working scenario, reconstructed — module numbers as confirmed in Make',
             },
-            links: [
-              {
-                label: 'make blueprint ↗',
-                href: 'https://github.com/gabortardos/roast-desk-ai-automation/tree/main/make',
-              },
-            ],
           },
         },
         {
