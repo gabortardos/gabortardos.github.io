@@ -151,6 +151,16 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   owner’s `gh` OAuth token (404) and `GITHUB_TOKEN` (“Resource not accessible by
   integration”); per `actions/configure-pages` docs it needs a PAT/GitHub App — not worth it
   for a one-time toggle. (The owner’s Pages UI shows no Source picker — expected; do nothing.)
+- **INCIDENT 2026-10-12 (owner absent, repo accidentally flipped private):** the flip
+  UNALLOCATED Pages entirely; flipping back to public did NOT re-enable it —
+  `deploy-pages@v4` failed with `HttpError: Not Found` ("Ensure GitHub Pages has
+  been enabled"). Fix that WORKED (token restriction from 2026-09-28 no longer
+  applies): `gh api -X POST repos/gabortardos/gabortardos.github.io/pages -f
+  build_type=workflow`, then `gh run rerun <deploy-run-id> --failed`. Pages now
+  runs WORKFLOW-ONLY (`build_type: "workflow"`): the legacy `pages build and
+  deployment` pipeline no longer fires, the wait step in deploy.yml is a fast
+  no-op, and the old post-push blank-page window should be gone. Recovery
+  verified live: root + both bundles byte-exact vs local dist.
 - **Post-push behavior while `build_type` is legacy (expected, not a regression):** for up to
   ~1–2 min after a push the site may serve the legacy pipeline’s snapshot (raw source → blank
   page, asset URLs 404) until our artifact lands last; CDNs may also briefly cache the 404.
