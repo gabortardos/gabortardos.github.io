@@ -55,13 +55,17 @@ describe('orrery system — moon micropage data', () => {
     expect(roast?.detail?.links).toBeUndefined();
   });
 
-  it('DeutschMeister carries a complete detail block', () => {
+  it('DeutschMeister carries a complete detail block with version stamp and built-with provenance', () => {
     const d = dm?.detail;
     expect(d?.tagline.length ?? 0).toBeGreaterThan(20);
     expect(d?.paragraphs.length ?? 0).toBeGreaterThanOrEqual(3);
     d?.paragraphs.forEach((p) => expect(p.length).toBeGreaterThan(80));
     expect(d?.tech?.length ?? 0).toBeGreaterThanOrEqual(3);
     expect(d?.facts?.length ?? 0).toBeGreaterThanOrEqual(4);
+    // P2.11 convention: version stamp + built-with row, sourced from the repo
+    // (README/package.json/ROADMAP.md at v2.73.0)
+    expect(d?.facts?.some(([k, v]) => k === 'version' && v.includes('v2.73.0'))).toBe(true);
+    expect(d?.facts?.some(([k]) => k === 'built with')).toBe(true);
   });
 
   // P2.11: Support Automation (Enceladus), DressPilot (Tethys) and the

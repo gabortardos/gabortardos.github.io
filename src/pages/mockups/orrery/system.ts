@@ -231,9 +231,9 @@ export const system = {
         {
           // the real project: github.com/gabortardos/deutschmeister (repo
           // private, owner decision 2026-10-12) — live on its own domain;
-          // v2.1.0, eight milestones shipped (M0–M8)
+          // v2.73.0, roadmap complete through M17 (70+ releases)
           name: 'DeutschMeister',
-          note: 'Local-first German tutor — spaced repetition, grammar drills and AI role-play. All data stays in the browser.',
+          note: 'Local-first German trainer for A1 → C2 — 5,000 words, 1,179 grammar drills, an always-on AI tutor and speaking practice.',
           status: 'LIVE',
           href: 'https://deutschmeister.gaborscreation.space/',
           surface: 'io',
@@ -242,22 +242,24 @@ export const system = {
           speed: 0.22,
           detail: {
             tagline:
-              'A local-first German tutor that lives entirely in your browser — spaced repetition, grammar drills and AI role-play in one tab.',
+              'A local-first German trainer spanning A1 → C2 — spaced repetition over 5,000 words, 1,179 authored grammar drills and an AI tutor that explains every mistake, privately in your browser.',
             paragraphs: [
-              'DeutschMeister began as a personal need — a German tutor that is always one tab away and never loses the thread. It is deliberately local-first: no backend, no forced accounts, the whole learning history lives in IndexedDB in your browser, and your own AI key never leaves your localStorage.',
-              'The learning engine is deterministic where determinism matters. A spaced-repetition scheduler serves daily vocabulary from a 1,902-word corpus (A1–B2, frequency-ordered); new words arrive with their full forms — noun plurals, Präsens conjugations for all six persons, Präteritum and Perfekt — and a searchable Word bank keeps every learned word reachable. Grammar rides a 50-topic tree with a rule-based grader and a placement quiz that finds your starting line.',
-              'AI lands where it is genuinely better: 20 role-play conversation scenarios — café small talk to the Fitnessstudio — each ending in a structured feedback report, plus drill items generated on demand. A hands-free voice mode runs the whole loop by ear: speech in, silence detection, spoken reply. The adapter speaks GLM (the recommended path), OpenAI and DeepSeek — bring your own key or spend the free metered platform credit.',
-              'The real takeaway is the shipping discipline. Eleven roadmap steps are live — through offline PWA install, JSON export/import, optional Supabase accounts with last-write-wins sync and a metered platform-AI tier — and every one passed the same typecheck-test-build gate before deploy. The repo hands off cleanly to any AI agent or human: read AGENT.md, read ROADMAP.md, run the gate, build the next step.',
+              'DeutschMeister began as a personal need — a German tutor that is always one tab away and never loses the thread. It is deliberately local-first: install it as a PWA and the whole learning history lives in IndexedDB in your browser, fully functional as a guest forever. Optional Supabase accounts (Google or email) add last-write-wins sync across devices, with profile-scoped storage that keeps every account’s data strictly separate.',
+              'The learning engine is deterministic where determinism matters. An SM-2 spaced-repetition scheduler serves daily vocabulary from a 5,000-word corpus — A1 to C2, frequency-ordered, every word arriving with its full forms: noun plurals, Präsens conjugations for all six persons, Präteritum and Perfekt. Grammar rides 1,179 authored drills across all six CEFR levels, with a placement quiz, per-topic mastery bars, a review hub that replays your weakest topics and a mistake bank that keeps every error explainable.',
+              'AI lands where it is genuinely better: an always-on tutor anchored to the topic you are drilling, role-play across 39 scenarios plus your own, writing practice with AI grading from B1 to C2, and hands-free voice conversations with optional Google Cloud HD voices. The provider-agnostic adapter speaks GLM via z.ai (the recommended path), OpenAI, DeepSeek and BigModel — bring your own key, or spend the free starter credit and top up through Paddle subscriptions and credit packs.',
+              'The real takeaway is the shipping discipline. Every roadmap milestone through M17 is live — through offline PWA install, accounts and sync, Paddle payments and the speaking suite — across 70+ releases, each one passing the same verification gate: strict TypeScript, 1,069 tests, build, secrets scan, then CI/CD to this domain. Built solo with AI agents, every decision documented in ROADMAP.md for the next human or machine that picks it up.',
             ],
-            tech: ['Vite · TypeScript', 'IndexedDB', 'GLM · OpenAI · DeepSeek', 'Supabase', 'PWA · Service Worker'],
+            tech: ['Vite · TypeScript strict', 'IndexedDB', 'GLM · OpenAI · DeepSeek adapter', 'Supabase auth + sync', 'Paddle billing', 'PWA offline'],
             facts: [
-              ['type', 'local-first PWA — installs and works offline'],
-              ['vocabulary', '1,902 words · A1–B2 · spaced repetition, full word forms'],
-              ['grammar', '50 topics · rule-based grader · placement quiz'],
-              ['role-play', '20 AI scenarios · structured feedback reports'],
-              ['voice', 'speak & listen drills · hands-free auto-TTS mode'],
-              ['ai adapter', 'GLM (recommended) · OpenAI · DeepSeek — BYO key or free credit'],
-              ['data', 'IndexedDB + JSON export/import · optional Supabase sync'],
+              ['type', 'local-first German learning platform — A1 → C2'],
+              ['version', 'v2.73.0 — roadmap complete through M17 · 70+ releases'],
+              ['built with', 'solo-built with AI agents — every milestone in ROADMAP.md'],
+              ['vocabulary', '5,000 words · A1–C2 · SM-2 spaced repetition, full word forms'],
+              ['grammar', '1,179 authored drills · placement quiz · per-topic mastery'],
+              ['ai tutor', 'topic-anchored explanations · 39 role-plays + custom · writing B1–C2'],
+              ['voice', 'hands-free conversations · optional Google Cloud HD voices'],
+              ['accounts & sync', 'optional Supabase accounts · guest mode fully functional'],
+              ['payments', 'Paddle subscriptions + credit top-ups · free starter AI credit'],
             ],
           },
         },
