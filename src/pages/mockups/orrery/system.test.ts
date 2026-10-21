@@ -15,6 +15,8 @@ const dp = make?.moons.find((m) => m.name === 'DressPilot');
 const apps = planets.find((p) => p.id === 'apps');
 const dm = apps?.moons.find((m) => m.name === 'DeutschMeister');
 const explorer = apps?.moons.find((m) => m.name === 'Solar System Explorer');
+const earth = planets.find((p) => p.id === 'earth');
+const about = earth?.moons.find((m) => m.name === 'About Me');
 
 describe('orrery system — moon micropage data', () => {
   it('The Roast Desk rides the Mimas slot of the make orbit and opens its live Telegram bot', () => {
@@ -66,6 +68,24 @@ describe('orrery system — moon micropage data', () => {
     // (README/package.json/ROADMAP.md at v2.73.0)
     expect(d?.facts?.some(([k, v]) => k === 'version' && v.includes('v2.73.0'))).toBe(true);
     expect(d?.facts?.some(([k]) => k === 'built with')).toBe(true);
+  });
+
+  // P4.3: the About micropage — Earth (the traveled-then-home planet) hosts
+  // the maker's story on its real Moon, the one moon about a person
+  it('About Me lives on Earth’s real Moon with a complete micropage and no outbound links', () => {
+    expect(earth).toBeDefined();
+    expect(earth?.scenic).toBeUndefined(); // content planet now — nav + section + panel
+    expect(about).toBeDefined();
+    expect(about?.surface).toBe('moon'); // the real lunar surface map
+    expect(about?.status).toBe('ABOUT');
+    expect(about?.href).toBeUndefined(); // the story is the destination — nothing external
+    expect(about?.detail?.links).toBeUndefined();
+    const d = about?.detail;
+    expect(d?.tagline.length ?? 0).toBeGreaterThan(20);
+    expect(d?.paragraphs.length ?? 0).toBeGreaterThanOrEqual(3);
+    d?.paragraphs.forEach((p) => expect(p.length).toBeGreaterThan(80));
+    expect(d?.tech?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(d?.facts?.length ?? 0).toBeGreaterThanOrEqual(4);
   });
 
   // P2.11: Support Automation (Enceladus), DressPilot (Tethys) and the

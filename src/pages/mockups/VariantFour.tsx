@@ -132,7 +132,7 @@ function MoonCard({ moon, color, onOpen }: { moon: MoonSpec; color: string; onOp
       </div>
       <p className="mt-2 text-sm leading-relaxed text-[#9aa3b8]">{moon.note}</p>
       <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#7c86a5] transition-colors group-hover:text-white">
-        open project ↗
+        {moon.cta ?? 'open project ↗'}
       </p>
     </button>
   );
@@ -331,7 +331,7 @@ function Micropage({
               {spec.moons.length > 0 ? (
                 <>
                   <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.25em] text-[#7c86a5]">
-                    projects — pick one
+                    {spec.moonListLabel ?? 'projects — pick one'}
                   </p>
                   <div className="mt-3 space-y-3">
                     {spec.moons.map((moon) => (

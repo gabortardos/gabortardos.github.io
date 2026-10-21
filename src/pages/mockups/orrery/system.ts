@@ -65,7 +65,7 @@ export type MoonDetail = {
 export type MoonSpec = {
   name: string;
   note: string;
-  status: 'LIVE' | 'CASE STUDY' | 'FORMING';
+  status: 'LIVE' | 'CASE STUDY' | 'FORMING' | 'ABOUT';
   href?: string;
   /** long-form micropage content — see MoonDetail */
   detail?: MoonDetail;
@@ -80,6 +80,8 @@ export type MoonSpec = {
   inc?: number;
   /** orbital angular speed (rad/s) — ordered like the real system */
   speed: number;
+  /** card CTA override — e.g. the About story "reads", not "opens" */
+  cta?: string;
 };
 
 /**
@@ -126,6 +128,8 @@ export type BodySpec = {
   scenic?: boolean;
   /** real scenic moons (Earth's Moon, Phobos/Deimos, the Galileans, Triton…) */
   sceneMoons?: SceneMoonSpec[];
+  /** panel list-header override — e.g. the About planet lists a story, not projects */
+  moonListLabel?: string;
   // ---- scene-only numbers (ignored by the DOM layer) ----
   /** orbit radius */
   orbit: number;
@@ -173,28 +177,51 @@ export const system = {
       tilt: -0.07,
     },
     {
+      // P4.3 (owner request 2026-10-21): Earth hosts the About category — the
+      // traveled-then-home planet. The story lives on its real Moon: the one
+      // moon in this sky that is about a person, not a project. The sun stays
+      // what it always was — the maker himself, the hero and the kicker.
       id: 'earth',
-      name: 'Earth',
-      qualifier: 'scenic body',
+      name: 'About',
+      qualifier: 'about · the maker',
       color: '#60a5fa',
-      blurb: 'Scenic planet — home, with the one real Moon.',
-      moons: [],
-      planet: 'earth',
-      scenic: true,
-      // the real Moon — NOT an equatorial satellite: it orbits ~5.1° off the
-      // ecliptic (and far out — 3.4 planet radii here, compressed from 60)
-      sceneMoons: [
+      blurb:
+        'The maker behind this sky — a working life that started on sales floors and customer-service desks, climbed through marketing, consulting, real estate and management, and crossed the EU, the USA and Asia along the way. Now home in Germany, building AI. One moon carries the full story.',
+      moonListLabel: 'the story — open it',
+      moons: [
         {
-          name: 'Moon',
+          name: 'About Me',
+          note: 'The story behind the sky — a career from sales floors to management, three continents, now AI in Germany.',
+          status: 'ABOUT',
+          // the real Moon's own surface, slot and stately 27-day drift — the
+          // 5.1° inclination off the ecliptic is preserved in `inc`
           surface: 'moon',
           size: 0.13,
           dist: 3.4,
-          inc: 0.089, // 5.1° to the ecliptic — the real value
-          equatorial: false,
-          tint: '#b9bcc4',
-          speed: 0.05, // real Moon is slow — a stately 27-day drift
+          inc: 0.089,
+          speed: 0.05,
+          cta: 'read the story ↗',
+          detail: {
+            tagline:
+              'From sales floors to management, three continents and a dozen job titles — now building AI systems end to end from Germany.',
+            paragraphs: [
+              'I never had one career — I had a ladder, and I started at the bottom of it. Sales floors and customer-service desks first, then marketing and business consulting, then real estate investment, short-term leasing and home improvement, and finally operations and management. Along the way I lived in several countries across the EU and the USA and traveled wide stretches of Asia. The constant in all of it was the same lesson from a different angle: understand what people actually need, then build the system that reliably delivers it.',
+              'Tech was the late arrival that changed everything. I watched AI cross from party trick to working tool and recognized the shift I had seen in every industry I ever worked in: the winners understand both the domain and the machine. So I went all in — not on theory, on shipping. Everything in this sky is a working system: real users, telemetry, tests, payments, a domain of its own. No notebook demos.',
+              'The old career is not backstory — it is the spec sheet. Customer-service years set the honest boundaries of my support-automation prototypes: AI recommends, the workflow acts, a human stays in the loop. Sales and marketing taught me why The Roast Desk has to be funny and why it measures everything. Real estate and operations drilled estimation, maintenance windows and contractor reliability — the same discipline that now runs agents, credits and release gates. And DeutschMeister started on my own desk, learning German the hard way.',
+              'These days I live and work in Germany, close to nature and deep in tech, and I enjoy both more than ever. Off the clock: hiking, travel, and studying languages purely for the pleasure of it. On the clock: AI solutions from first prompt to production — product, orchestration, payments, ship. The sky you are floating in is one of them.',
+            ],
+            tech: ['LLM apps & agents', 'Make.com orchestration', 'TypeScript · React · Three.js', 'Prompt & context design'],
+            facts: [
+              ['base', 'Germany — after years across the EU, the USA and Asia'],
+              ['path', 'sales · marketing · consulting · real estate · operations · management'],
+              ['focus now', 'AI solutions end to end — first prompt to production'],
+              ['learning', 'German, daily — DeutschMeister is the tool and the proof'],
+              ['off the clock', 'nature · travel · languages'],
+            ],
+          },
         },
       ],
+      planet: 'earth',
       orbit: 7.7,
       size: 0.62,
       speed: 0.11,
