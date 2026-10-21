@@ -54,7 +54,7 @@ function ScrollLit({ text, className }: { text: string; className?: string }) {
   );
 }
 
-const TITLE = 'GÁBOR’S SYSTEM';
+const TITLE = 'GÁBOR’S CREATIONS';
 
 // Short welcome reveal (the monoai-style entrance): letters rise, then the whole
 // overlay fades and unmounts itself. Skipped entirely under reduced motion.
@@ -77,7 +77,7 @@ function Ignition({ onDone }: { onDone: () => void }) {
         transition={{ delay: 0.15, duration: 0.5 }}
         className="font-mono text-[10px] uppercase tracking-[0.4em] text-[#7c86a5]"
       >
-        establishing orbit
+        portfolio · 2026
       </motion.p>
       <h1
         aria-label={TITLE}
@@ -132,7 +132,7 @@ function MoonCard({ moon, color, onOpen }: { moon: MoonSpec; color: string; onOp
       </div>
       <p className="mt-2 text-sm leading-relaxed text-[#9aa3b8]">{moon.note}</p>
       <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#7c86a5] transition-colors group-hover:text-white">
-        open the moon ↗
+        open project ↗
       </p>
     </button>
   );
@@ -159,7 +159,7 @@ function OrbitSection({
         transition={{ duration: 0.7, ease: 'easeOut' }}
       >
         <p className="font-mono text-xs uppercase tracking-[0.3em]" style={{ color: spec.color }}>
-          orbit {String(index + 1).padStart(2, '0')} · {spec.qualifier}
+          {String(index + 1).padStart(2, '0')} · {spec.qualifier}
         </p>
         <h2 className="mt-4 font-display text-4xl font-bold tracking-tight text-[#f2f4fd] sm:text-6xl">
           {spec.name}
@@ -173,7 +173,7 @@ function OrbitSection({
           </div>
         ) : (
           <p className="mt-8 rounded-xl border border-white/10 bg-white/[0.04] p-5 font-mono text-xs uppercase tracking-[0.2em] text-[#7c86a5] backdrop-blur-sm">
-            ◦ orbit under construction — first bodies form in a later milestone
+            ◦ first projects land here soon
           </p>
         )}
       </motion.div>
@@ -331,7 +331,7 @@ function Micropage({
               {spec.moons.length > 0 ? (
                 <>
                   <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.25em] text-[#7c86a5]">
-                    subprojects — open a moon
+                    projects — pick one
                   </p>
                   <div className="mt-3 space-y-3">
                     {spec.moons.map((moon) => (
@@ -366,7 +366,7 @@ function Micropage({
                 </>
               ) : (
                 <p className="mt-8 rounded-xl border border-white/10 bg-white/[0.04] p-5 font-mono text-xs uppercase tracking-[0.2em] text-[#7c86a5]">
-                  ◦ orbit under construction — first bodies form in a later milestone
+                  ◦ first projects land here soon
                 </p>
               )}
             </>
@@ -417,13 +417,13 @@ function Micropage({
                 onClick={() => onPlanet(spec)}
                 className="mt-8 block cursor-pointer font-mono text-[10px] uppercase tracking-[0.2em] text-[#7c86a5] transition-colors hover:text-white"
               >
-                ← all moons of {spec.name}
+                ← all projects in {spec.name}
               </button>
             </>
           )}
         </div>
         <p className="shrink-0 border-t border-white/10 px-7 py-4 font-mono text-[9px] uppercase tracking-[0.25em] text-[#5d6784]">
-          esc to close · the sky keeps moving behind this page
+          esc to close
         </p>
       </motion.aside>
     </>
@@ -584,7 +584,7 @@ export default function VariantFour() {
           className="pointer-events-auto mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 py-6"
         >
           <span className="font-mono text-xs uppercase tracking-[0.25em] text-[#8a93a8]">
-            GTRD · system-01
+            GTRD · portfolio
           </span>
           <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {contentPlanets.map((p) => (
@@ -631,12 +631,12 @@ export default function VariantFour() {
           >
             Gábor&rsquo;s
             <br />
-            <span className="font-serif font-normal italic tracking-normal text-[#ffd9a0]">system</span>
+            <span className="font-serif font-normal italic tracking-normal text-[#ffd9a0]">creations</span>
             <span className="text-[#ffd9a0]">.</span>
           </motion.h1>
           <ScrollLit
             className="pointer-events-auto mt-10 max-w-xl text-base leading-relaxed text-[#aab2c8]"
-            text="Everything I make holds a stable orbit around one maker — apps, automations, podcasts, art and songs, each on its own path. The sky behind these words is a live 3D engine: hover a planet, click it to travel."
+            text="I’m Gábor Tardos — I build apps, Make.com automations, AI podcasts, generated art and songs. The sky behind this page is a live 3D engine: hover a planet, click it to travel."
           />
           <div className="pointer-events-auto mt-10 flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#7c86a5]">
             <span className="rounded-full border border-white/15 px-3 py-1.5">hover a planet</span>
@@ -668,13 +668,13 @@ export default function VariantFour() {
           <div className="mx-auto max-w-6xl">
             <p className="pointer-events-auto max-w-2xl font-mono text-[11px] leading-relaxed tracking-[0.04em] text-[#6f7a99]">
               ◦ engine note — this background is a stripped-down adaptation of the three.js engine
-              behind Solar System Explorer (see the Apps orbit). The full explorer ships to its own URL in
-              a later milestone. prefers-reduced-motion renders a static frame instead.
+              behind the live Solar System Explorer (open it from the Apps section).
+              prefers-reduced-motion renders a static frame instead.
               planet + moon imagery: NASA/JPL, via Solar System Explorer.
             </p>
             <div className="pointer-events-auto mt-6 flex flex-wrap items-center justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-[#7c86a5]">
               <span>© 2026 Gábor Tardos</span>
-              <span>Variant 4 · System</span>
+              <span>Gábor’s Creations</span>
             </div>
           </div>
         </footer>
@@ -708,7 +708,7 @@ export default function VariantFour() {
             className="pointer-events-none fixed inset-x-0 bottom-6 z-30 flex justify-center px-6"
           >
             <span className="rounded-full border border-white/15 bg-[#070b18]/85 px-5 py-2 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-[#9aa3b8] backdrop-blur">
-              the sky is live — {coarse ? 'tap' : 'click'} a planet to travel · a moon to land
+              the sky is live — {coarse ? 'tap' : 'click'} a planet to travel · a moon opens its project
             </span>
           </motion.p>
         )}

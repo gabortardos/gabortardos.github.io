@@ -61,7 +61,10 @@ export default function OrreryBackground({ onSelect, onReady }: Props) {
       <div ref={labelsRef} className="pointer-events-none absolute inset-0">
         {/* P2.7: planet names are invisible to visitors — content planets are
             labeled with their CATEGORY, scenic planets (Venus/Earth/Neptune)
-            carry no label at all. Only their real moons get names, up close. */}
+            carry no label at all. P4.2 (owner decision 2026-10-21): scenic
+            moons are unlabeled scenery too — only purposeful objects keep
+            names, i.e. project moons. Their meshes stay; scene.ts is null-safe
+            for the missing `::s` label elements. */}
         {system.planets
           .filter((p) => !p.scenic)
           .map((p) => (
@@ -69,12 +72,9 @@ export default function OrreryBackground({ onSelect, onReady }: Props) {
               {p.name}
             </div>
           ))}
-        {/* project moons (`::m`) + scenic real moons (`::s`) — the micropage layer */}
+        {/* project moons (`::m`) only — the micropage layer */}
         {system.planets
-          .flatMap((p) => [
-            ...p.moons.map((m, i) => ({ key: `${p.id}::m${i}`, name: m.name })),
-            ...(p.sceneMoons ?? []).map((m, i) => ({ key: `${p.id}::s${i}`, name: m.name })),
-          ])
+          .flatMap((p) => p.moons.map((m, i) => ({ key: `${p.id}::m${i}`, name: m.name })))
           .map((m) => (
             <div key={m.key} data-id={m.key} className={moonLabelClass}>
               {m.name}

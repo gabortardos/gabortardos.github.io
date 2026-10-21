@@ -140,7 +140,7 @@ export type BodySpec = {
 export const system = {
   sun: {
     name: 'Gábor Tardos',
-    kicker: 'system-01 · everything orbits one maker',
+    kicker: 'one maker · apps, automations, audio, art',
     color: '#ffd9a0',
   },
   planets: [
