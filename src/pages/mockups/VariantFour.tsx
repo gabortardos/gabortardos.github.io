@@ -4,7 +4,7 @@
 // moons = projects). NOT the final design yet — scaffolding like v1–v3.
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+// content floats over the live canvas — see src/pages/mockups/orrery/system.ts
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
 import { contentPlanets, system } from './orrery/system';
@@ -547,6 +547,49 @@ export default function VariantFour() {
   const coarse =
     typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
 
+  // P4: orbit HUD — wayfinding while scrolling: which orbit the camera is in.
+  // Nearest content section (by viewport center) wins; the last planet holds
+  // through the footer exactly like the cinematic camera. Pure DOM, rAF-
+  // throttled, no scene coupling. Hidden until the visitor leaves the hero.
+  const [orbitHud, setOrbitHud] = useState<string | null>(null);
+  useEffect(() => {
+    if (!ignited) return;
+    let raf = 0;
+    const update = (): void => {
+      raf = 0;
+      const mid = window.innerHeight * 0.5;
+      let best = -1;
+      let bestD = Infinity;
+      for (let i = 0; i < contentPlanets.length; i++) {
+        const spec = contentPlanets[i];
+        if (!spec) continue;
+        const el = document.getElementById(spec.id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height * 0.5 - mid);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      }
+      const nearest = best >= 0 ? contentPlanets[best] : undefined;
+      const cur =
+        nearest && window.scrollY > window.innerHeight * 0.75
+          ? `orbit ${String(best + 1).padStart(2, '0')} · ${nearest.name.toLowerCase()}`
+          : null;
+      setOrbitHud((prev) => (prev === cur ? prev : cur));
+    };
+    const onScroll = (): void => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [ignited]);
+
   // P2.6 hero framing (owner request): at rest the text interface steps LEFT,
   // clearing stage space for the system; it resolves back to the standard
   // measure over the first 240px of scroll. Capped at 170px, ≥1024px viewports
@@ -602,12 +645,6 @@ export default function VariantFour() {
                 {p.name}
               </button>
             ))}
-            <Link
-              to="/"
-              className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#ffd9a0] hover:text-white"
-            >
-              ← variants
-            </Link>
           </nav>
         </motion.header>
 
@@ -709,6 +746,25 @@ export default function VariantFour() {
           >
             <span className="rounded-full border border-white/15 bg-[#070b18]/85 px-5 py-2 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-[#9aa3b8] backdrop-blur">
               the sky is live — {coarse ? 'tap' : 'click'} a planet to travel · a moon opens its project
+            </span>
+          </motion.p>
+        )}
+      </AnimatePresence>
+
+      {/* P4: orbit HUD — which orbit the camera is in; the last planet holds
+          through the footer like the camera does. Phones skip it (no room). */}
+      <AnimatePresence>
+        {orbitHud && (
+          <motion.p
+            key="orbit-hud"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="pointer-events-none fixed bottom-6 left-6 z-30 hidden font-mono text-[10px] uppercase tracking-[0.25em] text-[#8a93a8] sm:block"
+          >
+            <span className="rounded-full border border-white/10 bg-[#070b18]/85 px-4 py-2 backdrop-blur">
+              you are in — {orbitHud}
             </span>
           </motion.p>
         )}

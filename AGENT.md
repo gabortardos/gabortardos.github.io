@@ -411,6 +411,16 @@ creator, multiple AI collaborators. Use tastefully if the owner likes it.
   and the SA cover were sourced this way. The public site stays link-free
   (owner decision 2026-10-12: no outbound repo links).
 
+- **M1 closed (2026-10-21): v4 “System” is the homepage.** `App.tsx` routes `/` →
+  `VariantFour`; `/#/v4` redirects to `/` (old deep links survive); the variant
+  chooser and `VariantOne/Two/Three` are DELETED (main bundle 336.6 → 323.4 kB).
+  Historical references to `/#/v1|v2|v3` and the chooser in older notes above
+  are history, not current state. The P4 orbit HUD (“you are in — orbit NN ·
+  category”) lives in VariantFour as pure DOM (nearest section by viewport
+  center; last planet holds through the footer; `sm:` and up only). Remaining
+  M1 residue: the GLM comet easter egg (optional, parked with OPEN DECISION 6)
+  and the owner smoke test (subsumed by daily use — treat reports as bugs).
+
 ## Resume protocol for a new agent session
 
 

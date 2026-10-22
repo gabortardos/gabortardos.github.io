@@ -3,13 +3,13 @@
 > Update this file in the same commit as the work it describes. It is the shared memory
 > between AI agents (and humans) working on this repo. Full context: `AGENT.md`.
 
-## Status: Planning ✅ (2026-09-28) · M0 ✅ (2026-09-28) · M1 🔄 (v4 “System” picked 2026-10-03 — upgrading to real homepage) · M2 ⬜ · M3 ⬜ · M4 ⬜
+## Status: Planning ✅ (2026-09-28) · M0 ✅ (2026-09-28) · M1 ✅ (2026-10-21 — v4 “System” folded into the real homepage) · M2 ⬜ · M3 ⬜ · M4 ⬜
 
 | Milestone | State | Commit | Notes |
 |---|---|---|---|
 | Planning | ✅ done | initial | brainstorm + all architecture decisions captured in AGENT.md |
 | M0 Scaffold + live pipeline | ✅ done | `M0: scaffold + GitHub Pages deploy pipeline` | gate green; Actions→Pages workflow live; live-URL check logged below |
-| M1 Design system + homepage | 🔄 in progress | `M1: mockup variants for design direction` | OPEN DECISIONS 1–2 resolved 2026-09-28; **owner picked v4 “System” 2026-10-03** — now upgrading it per the v4 dev plan below (mixes from v1–v3 allowed) |
+| M1 Design system + homepage | ✅ done | `M1: mockup variants for design direction` + v4 P0–P4 plan (2026-10-03→10-21) | owner picked v4 “System” 2026-10-03; upgraded via P0–P4 (HQ graphics, cinematic scroll, micropages, interaction depth, content passes); **folded into `/` 2026-10-21** — chooser + v1–v3 deleted, `/#/v4` redirects, main bundle −13 kB |
 | M2 Gallery + project pages + media | ⬜ | | needs OPEN DECISIONS 3, 5, 6 |
 | M3 Sveltia admin + content seeding | ⬜ | | OAuth gateway; owner end-to-end edit |
 | M4 Polish + SEO + domain | ⬜ | | needs OPEN DECISION 4 |
@@ -259,7 +259,10 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 **P4 — Story & wayfinding (pick per idea, optional)**
 - [ ] GLM comet easter egg crossing the system — tells the two-engines story, elegantly
       closing OPEN DECISION 6 without a second card.
-- [ ] “You are in the X orbit” HUD indicator while scrolling.
+- [x] “You are in the X orbit” HUD indicator while scrolling. (2026-10-21: fixed
+      bottom-left chip — nearest content section by viewport center, last planet
+      holds through the footer like the camera; rAF-throttled pure DOM, hidden on
+      phones, fades in only past the hero.)
 
 **P4.1–P4.3 — Content passes (2026-10-21, owner-driven)**
 - [x] P4.1 Content freshness sweep + DeutschMeister rewrite to repo truth v2.73.0
@@ -321,4 +324,5 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 | 2026-10-21 | v4 P4.1 DeutschMeister v2.73.0 rewrite — local gate + CI + live (`aefc46a`) | ✅ green — 0 TS errors · 11/11 tests (2 new) · build OK; CI ✓ incl. Pages deploy; DM copy probes live (cache-busted). Details in the P4.1 block above. |
 | 2026-10-21 | v4 P4.2 voice recalibration + label hiding — local gate + CI + live (`cfe5e26`) | ✅ green — 0 TS errors · 11/11 tests · build OK; residual-metaphor sweep clean; owner approved all 16 suggestions; live verified. Details in the P4.2 block above. |
 | 2026-10-21 | v4 P4.3 About micropage — local gate + CI + live (`24d53d7` + same-day content revision) | ✅ green — 0 TS errors · 12/12 tests (1 new: About completeness, real-Moon slot, no outbound links) · build OK (main +copy only; orrery chunk content-identical). Earth scenic→content promotion guarded by test. Details in the P4.3 block above. |
+| 2026-10-21 | M1 close: v4 folded into `/` (chooser + v1–v3 deleted, `/#/v4` redirect) + P4 orbit HUD — local gate + CI + live | ✅ green — 0 TS errors · 12/12 tests · build OK. Main bundle 336.6 → **323.4 kB** (v1–v3 + chooser left the graph; gzip 106.8 kB); orrery chunk content-identical 587.34 kB. Header “← variants” link removed with the chooser. Orbit HUD: nearest-section chip, last planet holds through footer, `sm:` and up only. |
 

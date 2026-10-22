@@ -1,18 +1,14 @@
-import { Route, Routes } from 'react-router-dom';
-import ChooserPage from './pages/ChooserPage';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import VariantFour from './pages/mockups/VariantFour';
-import VariantOne from './pages/mockups/VariantOne';
-import VariantThree from './pages/mockups/VariantThree';
-import VariantTwo from './pages/mockups/VariantTwo';
 
+// M1 closed 2026-10-21: the owner-picked v4 “System” IS the homepage. The
+// mockup chooser and variants v1–v3 are deleted; /#/v4 keeps redirecting so
+// pre-fold deep links survive.
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<ChooserPage />} />
-      <Route path="/v1" element={<VariantOne />} />
-      <Route path="/v2" element={<VariantTwo />} />
-      <Route path="/v3" element={<VariantThree />} />
-      <Route path="/v4" element={<VariantFour />} />
+      <Route path="/" element={<VariantFour />} />
+      <Route path="/v4" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
