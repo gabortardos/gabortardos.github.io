@@ -261,6 +261,26 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
       closing OPEN DECISION 6 without a second card.
 - [ ] “You are in the X orbit” HUD indicator while scrolling.
 
+**P4.1–P4.3 — Content passes (2026-10-21, owner-driven)**
+- [x] P4.1 Content freshness sweep + DeutschMeister rewrite to repo truth v2.73.0
+      (`aefc46a`): micropage updated to M0–M17, 70+ releases, 5,000-word course,
+      1,179 drills, AI tutor + 39 role-plays, Paddle payments, Supabase accounts,
+      1,069-test gate; `version`/`built with` fact rows + tests. All 5 owner repos
+      audited — only DM was stale.
+- [x] P4.2 Voice recalibration + label hiding (`cfe5e26`, owner approved all 16
+      suggestions): personal-voice strings → museum voice in VariantFour/system
+      ("GÁBOR'S CREATIONS", plain hero sub, "open project ↗", footer fixes);
+      scenic-planet sky labels removed (project moons + category planets keep
+      names); scene.ts verified null-safe. Gate green, deployed.
+- [x] P4.3 About micropage (`24d53d7` + same-day revision): Earth promoted
+      scenic→content planet as the "About" category; its REAL Moon (own surface
+      map, 5.1° ecliptic inclination, 27-day drift) carries the "About Me"
+      long-form story — the one moon about a person, not a project. Machinery:
+      optional `MoonSpec.cta` + `BodySpec.moonListLabel`. Story corrected per
+      owner the same day: AI/tech = passion and hobby (own use, pilots, maybe
+      business later) — NOT the career; the career anchor is the AI prompt
+      evaluator role taken in Germany last year, written strong. 12/12 tests.
+
 **Tie-ins to later milestones**
 - M2: project pages open as “landing views”; gallery filter as an orbit map.
 - M3: content-driven sky — Sveltia collections drive the system spec; a new project entry
@@ -298,4 +318,7 @@ stylized Mercury/Moon/Earth/Saturn/Europa set)
 | 2026-10-12 | Incident: repo flipped private by accident → Pages unallocated → live 404. Recovery (no code change; `6d75d83` redeployed) | ✅ recovered — local/remote git in sync at `6d75d83` (nothing lost); local gate re-run green (0 TS errors · 8/8 tests · clean build, bundles byte-identical). First rerun failed: `deploy-pages@v4` 404 "Ensure GitHub Pages has been enabled" — private flip had disabled Pages. Re-enabled via API `POST /repos/…/pages` with `build_type=workflow` (legacy pipeline now retired), rerun `--failed` → success. Live (cache-busted): root 200 · main `index-G-Hvs6KY.js` 329,893 B byte-exact · orrery `OrreryBackground-CuX0NVx5.js` 587,420 B byte-exact · exhibit 200 · DeutschMeister + Roast Desk copy probes present. |
 | 2026-10-12 | ci: wait-for-legacy step made Pages-source-aware (skip on `build_type=workflow`) | ✅ green — first workflow-only push (`71ff7e3`, docs) proved deploys still work but burned the full 10-min legacy wait (run for a legacy SHA that no longer exists). Fix: read `pages.build_type` first, exit instantly on `workflow`, keep the old wait as read-failure fallback. YAML validated (`npx js-yaml`). Next deploy verified fast-path + green (row below the fold in git history). |
 | 2026-10-12 | v4 P2.11 three micropages + root OG — local gate + CI + live verification (`27b903f`) | ✅ green — 0 TS errors · 11/11 tests (3 new) · build OK (main 336.58 kB = +7.3 kB copy; orrery chunk content-identical 587.42 kB, hash-only change). CI ✓ incl. Pages deploy; live (cache-busted) `index-CqPYyqMt.js` (336,574 B) byte-exact with all copy probes (`DressPilotv1bot` · "rides Tethys" · "102 scenarios" · "V1.1 stable baseline"). Assets live HTTP 200 byte-exact: `/og.png` 84,629 B (headless-Chrome render of `tools/og-portfolio.html`) · `/projects/dresspilot/flow.svg` 5,766 B · `/projects/support-automation/cover.svg` 3,535 B (ingested from the private repo via `gh api`). og:/twitter: meta live in index.html (3 `og:image*` tags). Tethys scenic→project promotion guarded by test. Support Automation ships without a primary href by design — pending the owner's demo email address. |
+| 2026-10-21 | v4 P4.1 DeutschMeister v2.73.0 rewrite — local gate + CI + live (`aefc46a`) | ✅ green — 0 TS errors · 11/11 tests (2 new) · build OK; CI ✓ incl. Pages deploy; DM copy probes live (cache-busted). Details in the P4.1 block above. |
+| 2026-10-21 | v4 P4.2 voice recalibration + label hiding — local gate + CI + live (`cfe5e26`) | ✅ green — 0 TS errors · 11/11 tests · build OK; residual-metaphor sweep clean; owner approved all 16 suggestions; live verified. Details in the P4.2 block above. |
+| 2026-10-21 | v4 P4.3 About micropage — local gate + CI + live (`24d53d7` + same-day content revision) | ✅ green — 0 TS errors · 12/12 tests (1 new: About completeness, real-Moon slot, no outbound links) · build OK (main +copy only; orrery chunk content-identical). Earth scenic→content promotion guarded by test. Details in the P4.3 block above. |
 

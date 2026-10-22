@@ -186,12 +186,12 @@ export const system = {
       qualifier: 'about · the maker',
       color: '#60a5fa',
       blurb:
-        'The maker behind this sky — a working life that started on sales floors and customer-service desks, climbed through marketing, consulting, real estate and management, and crossed the EU, the USA and Asia along the way. Now home in Germany, building AI. One moon carries the full story.',
+        'The maker behind this sky — a working life that started on sales floors and customer-service desks, climbed through marketing, consulting, real estate and management, and crossed the EU, the USA and Asia along the way. Now in Germany, evaluating AI prompts for a living — while everything orbiting here remains what it always was: a passion, built for the fun of it. One moon carries the full story.',
       moonListLabel: 'the story — open it',
       moons: [
         {
           name: 'About Me',
-          note: 'The story behind the sky — a career from sales floors to management, three continents, now AI in Germany.',
+          note: 'Sales floors to management across three continents, now an AI prompt evaluator in Germany — everything orbiting here is passion, not assignment.',
           status: 'ABOUT',
           // the real Moon's own surface, slot and stately 27-day drift — the
           // 5.1° inclination off the ecliptic is preserved in `inc`
@@ -203,18 +203,19 @@ export const system = {
           cta: 'read the story ↗',
           detail: {
             tagline:
-              'From sales floors to management, three continents and a dozen job titles — now building AI systems end to end from Germany.',
+              'Sales floors to management across three continents, now an AI prompt evaluator in Germany — and everything in this sky is the passion that runs alongside.',
             paragraphs: [
               'I never had one career — I had a ladder, and I started at the bottom of it. Sales floors and customer-service desks first, then marketing and business consulting, then real estate investment, short-term leasing and home improvement, and finally operations and management. Along the way I lived in several countries across the EU and the USA and traveled wide stretches of Asia. The constant in all of it was the same lesson from a different angle: understand what people actually need, then build the system that reliably delivers it.',
-              'Tech was the late arrival that changed everything. I watched AI cross from party trick to working tool and recognized the shift I had seen in every industry I ever worked in: the winners understand both the domain and the machine. So I went all in — not on theory, on shipping. Everything in this sky is a working system: real users, telemetry, tests, payments, a domain of its own. No notebook demos.',
+              'Tech was never the career plan — it was the love. For years I have been building apps and automations for the fun of it and for my own use: tools I actually needed, pilots to prove ideas, and a standing maybe that one of them grows into a business. Then last year the love went professional: I took an AI prompt evaluator role and moved to Germany for it. The work means hands on frontier language models every day — writing prompts, grading their output, probing exactly where they break — helping decide what good looks like for the next generation of AI systems. It is the rare job that sharpens the hobby, and the hobby that sharpens the job.',
               'The old career is not backstory — it is the spec sheet. Customer-service years set the honest boundaries of my support-automation prototypes: AI recommends, the workflow acts, a human stays in the loop. Sales and marketing taught me why The Roast Desk has to be funny and why it measures everything. Real estate and operations drilled estimation, maintenance windows and contractor reliability — the same discipline that now runs agents, credits and release gates. And DeutschMeister started on my own desk, learning German the hard way.',
-              'These days I live and work in Germany, close to nature and deep in tech, and I enjoy both more than ever. Off the clock: hiking, travel, and studying languages purely for the pleasure of it. On the clock: AI solutions from first prompt to production — product, orchestration, payments, ship. The sky you are floating in is one of them.',
+              'These days the two run in parallel from Germany: the day job evaluating AI prompts, and the free time split between nature and the keyboard — building for myself, shipping pilots, and enjoying every minute of it. Off the clock entirely: hiking, travel, and languages studied purely for the pleasure of it — DeutschMeister being the proof, since I built it to learn German the hard way. Nothing in this sky was assigned. That is the point: this is the part I would build anyway, and you are floating in it.',
             ],
             tech: ['LLM apps & agents', 'Make.com orchestration', 'TypeScript · React · Three.js', 'Prompt & context design'],
             facts: [
+              ['day job', 'AI prompt evaluator — hands-on with frontier LLMs, Germany'],
               ['base', 'Germany — after years across the EU, the USA and Asia'],
               ['path', 'sales · marketing · consulting · real estate · operations · management'],
-              ['focus now', 'AI solutions end to end — first prompt to production'],
+              ['this sky', 'passion projects — own use first, pilots, maybe business'],
               ['learning', 'German, daily — DeutschMeister is the tool and the proof'],
               ['off the clock', 'nature · travel · languages'],
             ],
